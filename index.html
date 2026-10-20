@@ -596,14 +596,14 @@ let current=new Date(); current=new Date(current.getFullYear(),current.getMonth(
 
 function setSync(t,state=''){ const e=$('#syncStatus'); e.textContent=t; e.className='sync '+state; }
 function visible(e){ const q=$('#search').value.trim().toLowerCase(); return catSet.has(e.cat)&&(!q||`${e.title} ${e.memo||''}`.toLowerCase().includes(q)); }
-function userCol(){ return collection(db,'users',user.uid,'events'); }
-function memoCol(){ return collection(db,'users',user.uid,'memos'); }
-function routineCol(){ return collection(db,'users',user.uid,'routines'); }
+function userCol(){ return collection(db,'users',user.uid,'hjm_events'); }
+function memoCol(){ return collection(db,'users',user.uid,'hjm_memos'); }
+function routineCol(){ return collection(db,'users',user.uid,'hjm_routines'); }
 function requireLogin(){ if(user)return true; alert('먼저 Google 로그인을 해주세요.'); return false; }
 
 /* ===================== 일정 저장 ===================== */
-async function saveEvent(e){ if(!requireLogin())return; setSync('저장 중...'); try{await setDoc(doc(db,'users',user.uid,'events',e.id),e);setSync('동기화됨','ok')}catch(err){console.error(err);setSync('저장 오류','err');alert('저장하지 못했습니다.')} }
-async function removeEvent(id){ if(!requireLogin())return; try{await deleteDoc(doc(db,'users',user.uid,'events',id))}catch(err){console.error(err);alert('삭제하지 못했습니다.')} }
+async function saveEvent(e){ if(!requireLogin())return; setSync('저장 중...'); try{await setDoc(doc(db,'users',user.uid,'hjm_events',e.id),e);setSync('동기화됨','ok')}catch(err){console.error(err);setSync('저장 오류','err');alert('저장하지 못했습니다.')} }
+async function removeEvent(id){ if(!requireLogin())return; try{await deleteDoc(doc(db,'users',user.uid,'hjm_events',id))}catch(err){console.error(err);alert('삭제하지 못했습니다.')} }
 async function moveEventToDate(id,target){
   const e=events.find(x=>x.id===id); if(!e)return;
   const dur=Math.max(0,dateDiffDays(e.start,e.end));
@@ -635,8 +635,8 @@ function openModal(date=null,id=null){
 function closeModal(){ $('#modalBackdrop').classList.remove('show'); editing=null; }
 
 /* ===================== 날짜 메모 ===================== */
-async function saveMemo(m){ if(!requireLogin())return; try{await setDoc(doc(db,'users',user.uid,'memos',m.id),m)}catch(err){console.error(err);alert('메모를 저장하지 못했습니다.')} }
-async function removeMemo(id){ if(!requireLogin())return; try{await deleteDoc(doc(db,'users',user.uid,'memos',id))}catch(err){console.error(err);alert('메모를 삭제하지 못했습니다.')} }
+async function saveMemo(m){ if(!requireLogin())return; try{await setDoc(doc(db,'users',user.uid,'hjm_memos',m.id),m)}catch(err){console.error(err);alert('메모를 저장하지 못했습니다.')} }
+async function removeMemo(id){ if(!requireLogin())return; try{await deleteDoc(doc(db,'users',user.uid,'hjm_memos',id))}catch(err){console.error(err);alert('메모를 삭제하지 못했습니다.')} }
 function openMemo(date,id=null){
   if(!requireLogin())return;
   memoDate=date; memoEditing=id;
@@ -859,10 +859,10 @@ const isWeekend=d=>d.getDay()===0||d.getDay()===6;
 async function saveRoutine(r){
   if(!requireLogin())return;
   setSync('저장 중...');
-  try{await setDoc(doc(db,'users',user.uid,'routines',r.id),r);setSync('동기화됨','ok')}
+  try{await setDoc(doc(db,'users',user.uid,'hjm_routines',r.id),r);setSync('동기화됨','ok')}
   catch(err){console.error(err);setSync('저장 오류','err');alert('반복 업무를 저장하지 못했습니다.\nFirebase 보안 규칙에서 routines 컬렉션 접근이 허용되어 있는지 확인해주세요.')}
 }
-async function removeRoutine(id){ if(!requireLogin())return; try{await deleteDoc(doc(db,'users',user.uid,'routines',id))}catch(err){console.error(err);alert('삭제하지 못했습니다.')} }
+async function removeRoutine(id){ if(!requireLogin())return; try{await deleteDoc(doc(db,'users',user.uid,'hjm_routines',id))}catch(err){console.error(err);alert('삭제하지 못했습니다.')} }
 function monthlyDue(r,y,m){
   const last=new Date(y,m+1,0).getDate();
   if(r.monthMode==='nth'){
@@ -1142,7 +1142,7 @@ try{ if(localStorage.getItem('hView')==='routine')setView('routine'); }catch(_){
 $('#backupBtn').onclick=()=>{
   if(!requireLogin())return;
   const blob=new Blob([JSON.stringify({events,memos,routines},null,2)],{type:'application/json'}), a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=`h-daily-checklist-backup-${ymd(new Date())}.json`; a.click(); URL.revokeObjectURL(a.href);
+  a.href=URL.createObjectURL(blob); a.download=`hjm-dashboard-backup-${ymd(new Date())}.json`; a.click(); URL.revokeObjectURL(a.href);
 };
 $('#restoreInput').onchange=async e=>{
   if(!requireLogin()){e.target.value='';return}
@@ -1151,9 +1151,9 @@ $('#restoreInput').onchange=async e=>{
     const data=JSON.parse(await f.text());
     const ev=Array.isArray(data)?data:(data.events||[]), mm=Array.isArray(data)?[]:(data.memos||[]), rr=Array.isArray(data)?[]:(data.routines||[]);
     const b=writeBatch(db);
-    ev.forEach(x=>{const id=x.id||'e'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'events',id),{...x,id})});
-    mm.forEach(x=>{const id=x.id||'m'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'memos',id),{...x,id})});
-    rr.forEach(x=>{const id=x.id||'r'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'routines',id),{...x,id})});
+    ev.forEach(x=>{const id=x.id||'e'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_events',id),{...x,id})});
+    mm.forEach(x=>{const id=x.id||'m'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_memos',id),{...x,id})});
+    rr.forEach(x=>{const id=x.id||'r'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_routines',id),{...x,id})});
     await b.commit(); alert('복원했습니다.');
   }catch{alert('올바른 백업 파일이 아닙니다.')}
   e.target.value='';
@@ -1176,4 +1176,3 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
-
