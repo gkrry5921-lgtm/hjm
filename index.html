@@ -402,21 +402,11 @@ body.view-exercise .exerciseView{display:block!important}
   body.view-routine .mobileFab,body.view-notes .mobileFab,body.view-exercise .mobileFab{display:none}
   .notesView,.routineView{padding:10px}
 }
-
-/* 소리 없는 앱 내 알림함 */
-.alertBell{position:relative;flex-shrink:0;width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:11px;font-size:19px;cursor:pointer}
-.alertCount{position:absolute;right:-5px;top:-6px;background:#c45b55;color:white;border-radius:20px;font-size:10px;min-width:18px;padding:3px 4px;font-weight:800}
-.alertPanel{position:fixed;z-index:90;top:74px;right:18px;width:min(380px,calc(100vw - 24px));max-height:min(70vh,620px);overflow:auto;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 42px #1d29382b}
-.alertPanel[hidden],.alertCount[hidden]{display:none!important}
-.alertPanelHead,.alertPanelFoot{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f6f4ef;gap:10px}
-.alertPanelHead{border-bottom:1px solid var(--line)}.alertPanelFoot{border-top:1px solid var(--line)}
-.alertItems{max-height:420px;overflow:auto}
-.alertItem{display:block;width:100%;border:0;border-bottom:1px solid var(--line);background:white;text-align:left;padding:13px 14px;cursor:pointer}
-.alertItem.unread{background:#f0f4f8}
-.alertItemTitle{font-size:13px;font-weight:800;color:#1d2938}
-.alertItemMeta{font-size:11px;color:#6c7785;margin-top:5px}
-.alertEmpty{padding:24px 14px;color:#6c7785;font-size:13px;text-align:center}
-@media(max-width:900px){.alertPanel{top:62px;right:12px}.alertBell{width:35px;height:35px}}
+ 
+.pushEnable{border-color:#b8d4c5;color:#236648;background:#eff9f3}
+.pushInfo{max-width:920px;margin:8px auto;padding:11px 14px;background:#eff9f3;border:1px solid #b8d4c5;border-radius:12px;color:#236648;font-size:12px}
+.pushInfo[hidden]{display:none}
+@media(max-width:900px){.pushEnable{font-size:11px;padding:0 8px;height:34px}.header{flex-wrap:wrap}.headerRight{margin-left:auto}}
 </style>
 </head>
 <body>
@@ -436,7 +426,7 @@ body.view-exercise .exerciseView{display:block!important}
       <button class="viewTab" data-view="exercise">운동기록지</button>
     </nav>
     <div class="headerRight">
-      <button id="alertBell" class="alertBell" aria-label="알림 확인" aria-expanded="false" title="알림 확인">🔔<span id="alertCount" class="alertCount" hidden>0</span></button>
+      <button id="pushEnable" class="btn pushEnable" type="button">🔔 푸시 켜기</button>
       <span id="authUser" class="sync"></span>
       <span id="syncStatus" class="sync">로그인 필요</span>
       <button id="loginBtn" class="btn"><svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>Google 로그인</button>
@@ -444,11 +434,7 @@ body.view-exercise .exerciseView{display:block!important}
     </div>
   </header>
 
-  <section id="alertPanel" class="alertPanel" hidden aria-label="알림함">
-    <div class="alertPanelHead"><strong>🔔 알림</strong><button id="alertClose" class="btn">닫기</button></div>
-    <div id="alertItems" class="alertItems"></div>
-    <div class="alertPanelFoot"><button id="alertReadAll" class="btn">모두 읽음</button></div>
-  </section>
+  <div id="pushInfo" class="pushInfo" role="status" hidden></div>
   <div class="layout">
     <aside class="sidebar card">
       <div class="sideTop">
@@ -717,8 +703,46 @@ const firebaseConfig = {
   measurementId: "G-812LRZSWNV"
 };
 
+import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-messaging.js";
+// Firebase 콘솔 → 프로젝트 설정 → 클라우드 메시징 → 웹 푸시 인증서의 공개 키를 붙여넣으세요.
+const PUSH_VAPID_PUBLIC_KEY = "BAGMQytWlT2SLqkFBgRRzBt1ryJYcmydtsW9giouZXCLMk9ZRKJSL_k5QpnCMEfR3INP4Nibn2vcY3QwGU1p-QI";
+const PUSH_SW_PATH = "./firebase-messaging-sw.js";
+
 const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app), provider=new GoogleAuthProvider();
 try{ await setPersistence(auth, browserLocalPersistence); }catch(e){ console.warn('Auth persistence setup failed:', e); }
+
+
+/* 아이폰 홈 화면 웹앱 푸시: 사용자 버튼을 눌렀을 때만 권한 요청 */
+const pushButton=document.getElementById('pushEnable');
+function pushNotice(msg){const e=document.getElementById('pushInfo');e.textContent=msg;e.hidden=false}
+async function registerPush(){
+ if(!user){pushNotice('Google 로그인 후 푸시를 켜주세요.');return}
+ if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){
+   pushNotice('이 환경에서는 웹 푸시가 지원되지 않아요. 아이폰 Safari에서 홈 화면에 추가한 앱으로 실행해 주세요.');return;
+ }
+ if(!PUSH_VAPID_PUBLIC_KEY||PUSH_VAPID_PUBLIC_KEY.startsWith('PASTE_')){
+   pushNotice('배포 전에 index.html의 PUSH_VAPID_PUBLIC_KEY에 Firebase 공개 키를 입력해야 해요.');return;
+ }
+ try{
+   // iOS는 사용자의 직접 탭으로 권한을 요청해야 합니다.
+   const permission=await Notification.requestPermission();
+   if(permission!=='granted'){pushNotice('알림 권한이 허용되지 않았어요. 아이폰 설정에서 앱 알림을 허용해 주세요.');return}
+   if(!(await isSupported())){pushNotice('이 브라우저에서는 Firebase 웹 푸시를 사용할 수 없어요.');return}
+   const reg=await navigator.serviceWorker.register(PUSH_SW_PATH,{scope:'./'});
+   const messaging=getMessaging(app);
+   const token=await getToken(messaging,{vapidKey:PUSH_VAPID_PUBLIC_KEY,serviceWorkerRegistration:reg});
+   if(!token)throw new Error('푸시 토큰을 발급받지 못했습니다.');
+   const tokenId=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));
+   const id=Array.from(new Uint8Array(tokenId)).map(x=>x.toString(16).padStart(2,'0')).join('');
+   await setDoc(doc(db,'users',user.uid,'hjm_push_tokens',id),{token,updatedAt:Date.now(),enabled:true,platform:navigator.userAgent.slice(0,160)});
+   pushButton.textContent='🔔 푸시 켜짐';
+   pushNotice('푸시 알림 등록 완료! GitHub Actions 발송 설정까지 완료되면 앱을 닫아도 알림을 받을 수 있어요.');
+ }catch(err){console.error('Push setup error',err);pushNotice('푸시 설정 실패: '+(err.message||String(err)))}
+}
+pushButton.addEventListener('click',registerPush);
+try{
+ if('Notification' in window&&Notification.permission==='granted')pushButton.textContent='🔔 푸시 확인';
+}catch(_){}
 
 /* ===================== 공통 ===================== */
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -1176,67 +1200,13 @@ $('#exerciseDelete').onclick=async()=>{
  catch(e){console.error(e);alert('삭제하지 못했습니다.')}
 };
 
-
-/* 앱 내 알림: 일정 당일/전날, 업무 마감 당일/전날/지연. 서버 푸시 및 소리 없음. */
-let alertEntries=[];
-function alertReadKey(){return 'hjm-alert-read-v1-'+(user?.uid||'guest')}
-function alertReadSet(){
- try{return new Set(JSON.parse(localStorage.getItem(alertReadKey())||'[]'))}catch(_){return new Set()}
-}
-function markAlertsRead(ids){
- const read=alertReadSet();ids.forEach(id=>read.add(id));
- try{localStorage.setItem(alertReadKey(),JSON.stringify([...read].slice(-2000)))}catch(_){}
- renderAlerts();
-}
-function buildAlerts(){
- if(!user)return [];
- const today=ymd(new Date()), tomorrow=addDays(today,1);
- const items=[];
- events.forEach(e=>{
-   if(e.done)return;
-   const date=e.start||e.date;
-   if(date!==today&&date!==tomorrow)return;
-   const id='event:'+e.id+':'+date;
-   items.push({id,type:'calendar',label:date===today?'오늘 일정':'내일 일정',title:e.title||'제목 없는 일정',detail:catName(e.cat||'NCMN')+' · '+shortDate(date),sort:date});
- });
- routines.forEach(r=>{
-   if(r.taskDone||!r.due)return;
-   if(r.due>tomorrow)return;
-   const id='task:'+r.id+':'+r.due;
-   const label=r.due<today?'마감일 지남':r.due===today?'오늘 마감':'내일 마감';
-   items.push({id,type:'routine',label,title:r.title||'제목 없는 업무',detail:catName(r.cat||'NCMN')+' · '+shortDate(r.due),sort:r.due});
- });
- return items.sort((a,b)=>a.sort.localeCompare(b.sort)||a.title.localeCompare(b.title));
-}
-function renderAlerts(){
- alertEntries=buildAlerts();
- const read=alertReadSet(),unread=alertEntries.filter(x=>!read.has(x.id));
- const badge=$('#alertCount');badge.hidden=!unread.length;badge.textContent=unread.length>99?'99+':unread.length;
- const root=$('#alertItems');root.innerHTML='';
- if(!user){root.innerHTML='<div class="alertEmpty">Google 로그인 후 알림을 확인할 수 있어요.</div>';return}
- if(!alertEntries.length){root.innerHTML='<div class="alertEmpty">현재 확인할 일정·업무 알림이 없어요.</div>';return}
- alertEntries.forEach(item=>{
-   const b=document.createElement('button');b.className='alertItem'+(read.has(item.id)?'':' unread');
-   b.innerHTML='<div class="alertItemTitle">'+esc(item.label)+' · '+esc(item.title)+'</div><div class="alertItemMeta">'+esc(item.detail)+'</div>';
-   b.onclick=()=>{markAlertsRead([item.id]);$('#alertPanel').hidden=true;setView(item.type)};
-   root.appendChild(b);
- });
-}
-$('#alertBell').onclick=()=>{
- const p=$('#alertPanel');p.hidden=!p.hidden;$('#alertBell').setAttribute('aria-expanded',String(!p.hidden));
- renderAlerts();
-};
-$('#alertClose').onclick=()=>{$('#alertPanel').hidden=true;$('#alertBell').setAttribute('aria-expanded','false')};
-$('#alertReadAll').onclick=()=>markAlertsRead(alertEntries.map(x=>x.id));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#alertPanel').hidden=true});
-
 /* ===================== 동기화 / 로그인 ===================== */
 function startSync(){
   if(unsub)unsub(); if(memoUnsub)memoUnsub(); if(routineUnsub)routineUnsub(); if(notebookUnsub)notebookUnsub(); if(exerciseUnsub)exerciseUnsub();
   setSync('동기화 중...');
-  unsub=onSnapshot(userCol(),snap=>{events=snap.docs.map(d=>({id:d.id,...d.data()}));setSync('동기화됨','ok');renderCalendar();renderAlerts()},err=>{console.error(err);setSync('동기화 오류','err')});
+  unsub=onSnapshot(userCol(),snap=>{events=snap.docs.map(d=>({id:d.id,...d.data()}));setSync('동기화됨','ok');renderCalendar()},err=>{console.error(err);setSync('동기화 오류','err')});
   memoUnsub=onSnapshot(memoCol(),snap=>{memos=snap.docs.map(d=>({id:d.id,...d.data()}));renderCalendar()},err=>console.error(err));
-  routineUnsub=onSnapshot(routineCol(),snap=>{routines=snap.docs.map(d=>({id:d.id,...d.data()}));renderRoutines();renderAlerts()},err=>{console.error(err);setSync('업무 리스트 동기화 오류','err')});
+  routineUnsub=onSnapshot(routineCol(),snap=>{routines=snap.docs.map(d=>({id:d.id,...d.data()}));renderRoutines()},err=>{console.error(err);setSync('업무 리스트 동기화 오류','err')});
   exerciseUnsub=onSnapshot(exerciseCol(),snap=>{exercises=snap.docs.map(d=>({id:d.id,...d.data()}));renderExercises()},err=>{console.error(err);setSync('운동 기록 동기화 오류','err')});
   notebookUnsub=onSnapshot(notebookCol(),snap=>{notebook=snap.docs.map(d=>({id:d.id,...d.data()}));renderNotebook();if(selectedNoteId&&!draftNew){const n=notebook.find(x=>x.id===selectedNoteId);if(!n){selectedNoteId=null;$('#noteFields').style.display='none';$('#notePlaceholder').style.display='';}}},err=>{console.error(err);setSync('노트 동기화 오류','err')});
 }
@@ -1257,7 +1227,7 @@ onAuthStateChanged(auth,u=>{
     if(unsub)unsub(); if(memoUnsub)memoUnsub(); if(routineUnsub)routineUnsub(); if(notebookUnsub)notebookUnsub(); if(exerciseUnsub)exerciseUnsub(); unsub=memoUnsub=routineUnsub=notebookUnsub=exerciseUnsub=null;
     events=[];memos=[];routines=[];notebook=[];exercises=[];renderExercises();selectedNoteId=null;draftNew=false;$('#noteFields').style.display='none';$('#notePlaceholder').style.display='';
     $('#loginBtn').style.display='';$('#logoutBtn').style.display='none';$('#authUser').textContent='';setSync('로그인 필요');
-    renderCalendar();renderRoutines();renderNotebook();renderAlerts();
+    renderCalendar();renderRoutines();renderNotebook();
   }
 });
 
@@ -1368,7 +1338,7 @@ $('#restoreInput').onchange=async e=>{
 
 // 자정이 지나면 화면 갱신
 let lastDay=ymd(new Date());
-const dayCheck=()=>{const d=ymd(new Date()); if(d!==lastDay){lastDay=d;renderCalendar();renderRoutines();renderAlerts()}};
+const dayCheck=()=>{const d=ymd(new Date()); if(d!==lastDay){lastDay=d;renderCalendar();renderRoutines()}};
 setInterval(dayCheck,60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayCheck()});
 
@@ -1376,13 +1346,8 @@ renderCalendar();
 renderRoutines();
 renderNotebook();
 renderExercises();
-renderAlerts();
 </script>
 
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(console.error); });
-}
-</script>
+<!-- 푸시 서비스 워커는 알림 허용 버튼을 누르면 등록됩니다. -->
 </body>
 </html>
