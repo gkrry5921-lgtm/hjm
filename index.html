@@ -349,6 +349,59 @@ body:not(.view-notes) .notesView{display:none}
 .noteEmpty{color:var(--muted);font-size:13px;line-height:1.6;padding:18px 4px}
 @media(max-width:900px){.notesView{padding:10px}.notesShell{padding:14px}.notesGrid{grid-template-columns:1fr;min-height:0}.notesList{max-height:230px}.notesEditor textarea{min-height:260px}}
 
+
+/* 모바일 달력과 하단 탭 */
+.mobileBottomNav,.mobileFab{display:none}
+body.view-exercise .layout,body.view-exercise .mobileAgenda,body.view-exercise .routineView,body.view-exercise .notesView:not(.exerciseView){display:none!important}
+body:not(.view-exercise) .exerciseView{display:none}
+body.view-exercise .exerciseView{display:block!important}
+@media(max-width:900px){
+  body{background:#fff;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+  .header{position:relative;border:0;background:#fff;padding:18px 14px 8px}
+  .brandIcon{display:none}.brandTitle{font-size:17px}
+  .header .viewTabs{display:none}
+  .headerRight{gap:4px}
+  .headerRight .btn{font-size:11px;padding:0 9px}
+  body:not(.view-routine):not(.view-notes):not(.view-exercise) .layout{display:block;padding:0}
+  body:not(.view-routine):not(.view-notes):not(.view-exercise) .sidebar{display:none}
+  body:not(.view-routine):not(.view-notes):not(.view-exercise) .main{display:flex;gap:8px}
+  .main .catCard{padding:8px 12px;border:0;box-shadow:none}
+  .catHead{display:none}.catChips{margin-top:0;gap:5px}
+  .catBtn{height:31px;padding:0 7px;font-size:11px;border-radius:9px}
+  .catBtn .ck{width:15px;height:15px}.catBtn .num{display:none}
+  .calCard{border:0;border-radius:0;box-shadow:none}
+  .calTop{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:8px 12px}
+  .monthTitle{order:-1;width:100%;font-size:26px;font-weight:850;text-align:left}
+  .monthNav{gap:6px}.navGroup button{width:35px;height:34px}.todayBtn{height:34px;padding:0 11px}
+  .calActions{grid-column:auto;flex:1;justify-content:flex-end}
+  .calActions .search{width:min(135px,100%);height:34px}
+  .calActions #backupBtn,.calActions label,.calActions #newBtn{display:none}
+  .calendarScroll{padding:0;overflow:visible}
+  .calendar{min-width:0;width:100%;border:0;border-radius:0}
+  .weekdays{background:#fff;border:0}
+  .weekdays div{padding:9px 0;border:0;font-size:12px;color:#8c929a}
+  .week{min-width:0}
+  .day{min-width:0;min-height:104px;padding:4px 2px;border-right:0;border-bottom:1px solid #edf0f2;overflow:hidden}
+  .day.other{background:#fff;opacity:.4}
+  .dateRow{height:27px;justify-content:center}
+  .dateNum{font-size:13px}
+  .single,.range{font-size:10px;height:19px;padding:0 3px;border-radius:3px;border-left:0}
+  .single{margin-top:2px}
+  .single.NCMN,.range.NCMN{background:var(--ncmn);color:#fff}
+  .single.CGN,.range.CGN{background:var(--cgn);color:#fff}
+  .single.개인일정,.range.개인일정{background:var(--personal);color:#fff}
+  .single.퐁당,.range.퐁당{background:var(--pongdang);color:#fff}
+  .rangeLayer{top:32px}.barSpacer{max-height:120px}
+  .memoList,.memoAdd,.addMini{display:none}
+  .mobileAgenda{display:none!important}
+  .mobileBottomNav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;bottom:0;left:0;right:0;z-index:55;background:rgba(255,255,255,.97);border-top:1px solid #e6e6e6;padding:9px 6px calc(9px + env(safe-area-inset-bottom));box-shadow:0 -3px 16px #1d293810}
+  .mobileBottomNav button{border:0;background:none;color:#6c7785;display:flex;align-items:center;flex-direction:column;gap:4px;font-size:11px;font-weight:750;padding:5px 0}
+  .mobileBottomNav button span{font-size:25px;line-height:1.1}
+  .mobileBottomNav button.active{color:var(--navy)}
+  .mobileFab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(92px + env(safe-area-inset-bottom));width:57px;height:57px;border-radius:50%;border:0;background:#57c69a;color:white;font-size:38px;box-shadow:0 4px 14px #0002;z-index:52}
+  body.view-routine .mobileFab,body.view-notes .mobileFab,body.view-exercise .mobileFab{display:none}
+  .notesView,.routineView{padding:10px}
+}
 </style>
 </head>
 <body>
@@ -365,6 +418,7 @@ body:not(.view-notes) .notesView{display:none}
       <button class="viewTab active" data-view="calendar">일정</button>
       <button class="viewTab" data-view="routine">업무 리스트<span id="routineBadge" class="tabBadge" hidden></span></button>
       <button class="viewTab" data-view="notes">노트</button>
+      <button class="viewTab" data-view="exercise">운동기록지</button>
     </nav>
     <div class="headerRight">
       <span id="authUser" class="sync"></span>
@@ -462,6 +516,13 @@ body:not(.view-notes) .notesView{display:none}
     </main>
   </div>
 
+  <nav class="mobileBottomNav" aria-label="모바일 메뉴">
+    <button data-view="calendar"><span>▦</span>일정</button>
+    <button data-view="routine"><span>☷</span>업무 리스트</button>
+    <button data-view="notes"><span>▤</span>노트</button>
+    <button data-view="exercise"><span>♧</span>운동기록지</button>
+  </nav>
+  <button id="mobileFab" class="mobileFab" aria-label="일정 추가">+</button>
   <div id="mobileAgenda" class="mobileAgenda">
     <div class="card mobileAgendaCard">
       <div class="mobileAgendaTop">
@@ -501,6 +562,26 @@ body:not(.view-notes) .notesView{display:none}
     </div>
   </section>
 
+  <section id="exerciseView" class="notesView exerciseView">
+    <div class="card notesShell">
+      <div class="notesTop"><div><div class="sideTitle">운동기록지</div><div class="todayDate">운동 기록은 일정·업무·노트와 별도로 저장됩니다.</div></div><button id="exerciseNew" class="btn primary">+ 운동 기록</button></div>
+      <div class="notesGrid">
+        <div class="notesListPane"><input id="exerciseSearch" placeholder="운동 기록 검색"><div id="exerciseList" class="notesList"></div></div>
+        <div class="notesEditor">
+          <div id="exercisePlaceholder" class="noteEmpty">새 운동 기록을 작성하거나 이전 기록을 선택하세요.</div>
+          <div id="exerciseFields" style="display:none">
+            <div class="formGrid">
+              <div class="field"><label>운동 날짜</label><input id="exerciseDate" type="date"></div>
+              <div class="field"><label>운동 종류</label><input id="exerciseType" placeholder="예: 웨이트, 러닝"></div>
+              <div class="field full"><label>운동 내용 (무게, 횟수, 세트 등)</label><textarea id="exerciseContent" placeholder="벤치프레스 40kg × 10회 × 3세트"></textarea></div>
+              <div class="field full"><label>운동 소감</label><textarea id="exerciseFeeling" placeholder="컨디션, 느낀 점 등을 적어주세요"></textarea></div>
+            </div>
+            <div class="noteActions"><button id="exerciseDelete" class="btn danger">삭제</button><span id="exerciseSavedAt" class="sync"></span><button id="exerciseSave" class="btn primary">기록 저장</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
   <section id="routineView" class="routineView">
     <div class="card routinePanel">
       <div class="routineHead">
@@ -639,7 +720,7 @@ const IC={
   grip:'<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor"><circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/><circle cx="2" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="2" cy="14" r="1.5"/><circle cx="8" cy="14" r="1.5"/></svg>'
 };
 
-let user=null, events=[], memos=[], routines=[], notebook=[], unsub=null, memoUnsub=null, routineUnsub=null, notebookUnsub=null;
+let user=null, events=[], memos=[], routines=[], notebook=[], exercises=[], exerciseUnsub=null, unsub=null, memoUnsub=null, routineUnsub=null, notebookUnsub=null;
 let editing=null, memoEditing=null, memoDate=null, routineEditing=null, draggingEventId=null;
 let sideFilter='전체', taskTab='today', agendaFilter='전체', routineFilter='전체';
 let catSet=new Set(CATS);
@@ -650,6 +731,7 @@ function visible(e){ const q=$('#search').value.trim().toLowerCase(); return cat
 function userCol(){ return collection(db,'users',user.uid,'hjm_events'); }
 function memoCol(){ return collection(db,'users',user.uid,'hjm_memos'); }
 function routineCol(){ return collection(db,'users',user.uid,'hjm_routines'); }
+function exerciseCol(){return collection(db,"users",user.uid,"hjm_exercises")}
 function notebookCol(){ return collection(db,'users',user.uid,'hjm_notebook'); }
 function requireLogin(){ if(user)return true; alert('먼저 Google 로그인을 해주세요.'); return false; }
 
@@ -1030,13 +1112,57 @@ $('#noteDelete').onclick=async()=>{
   catch(err){console.error(err);alert('메모를 삭제하지 못했습니다.');}
 };
 
+
+/* 운동기록지: 기존 Google 계정별 Firestore 데이터와 별도 컬렉션 */
+let selectedExerciseId=null;
+function renderExercises(){
+ const q=$('#exerciseSearch').value.trim().toLowerCase(), root=$('#exerciseList');
+ root.innerHTML='';
+ const rows=exercises.filter(x=>[x.date,x.type,x.content,x.feeling].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+ if(!rows.length)root.innerHTML='<div class="noteEmpty">저장된 운동 기록이 없습니다.</div>';
+ rows.forEach(x=>{
+   const b=document.createElement('button');b.className='noteItem'+(selectedExerciseId===x.id?' active':'');
+   b.innerHTML='<div class="noteItemTitle">'+esc(x.date||'')+' · '+esc(x.type||'운동')+'</div><div class="noteItemPreview">'+esc(x.content||'')+'</div>';
+   b.onclick=()=>selectExercise(x.id);root.appendChild(b);
+ });
+}
+function selectExercise(id){
+ const x=exercises.find(v=>v.id===id);if(!x)return;
+ selectedExerciseId=id;$('#exerciseFields').style.display='';$('#exercisePlaceholder').style.display='none';
+ $('#exerciseDate').value=x.date||ymd(new Date());$('#exerciseType').value=x.type||'';
+ $('#exerciseContent').value=x.content||'';$('#exerciseFeeling').value=x.feeling||'';
+ $('#exerciseDelete').style.display='';$('#exerciseSavedAt').textContent='';renderExercises();
+}
+$('#exerciseNew').onclick=()=>{
+ if(!requireLogin())return;
+ selectedExerciseId=null;$('#exerciseFields').style.display='';$('#exercisePlaceholder').style.display='none';
+ $('#exerciseDate').value=ymd(new Date());$('#exerciseType').value='';$('#exerciseContent').value='';$('#exerciseFeeling').value='';
+ $('#exerciseDelete').style.display='none';$('#exerciseSavedAt').textContent='';renderExercises();
+};
+$('#exerciseSearch').oninput=renderExercises;
+$('#exerciseSave').onclick=async()=>{
+ if(!requireLogin())return;
+ const date=$('#exerciseDate').value,type=$('#exerciseType').value.trim();
+ if(!date||!type){alert('운동 날짜와 종류를 입력해 주세요.');return}
+ const id=selectedExerciseId||'exercise-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ const data={id,date,type,content:$('#exerciseContent').value,feeling:$('#exerciseFeeling').value,updatedAt:Date.now()};
+ try{setSync('저장 중...');await setDoc(doc(db,'users',user.uid,'hjm_exercises',id),data);selectedExerciseId=id;$('#exerciseDelete').style.display='';$('#exerciseSavedAt').textContent='저장 완료';setSync('동기화됨','ok')}
+ catch(e){console.error(e);setSync('저장 오류','err');alert('운동 기록 저장에 실패했습니다.')}
+};
+$('#exerciseDelete').onclick=async()=>{
+ if(!selectedExerciseId||!requireLogin()||!confirm('이 운동 기록을 삭제할까요?'))return;
+ try{await deleteDoc(doc(db,'users',user.uid,'hjm_exercises',selectedExerciseId));selectedExerciseId=null;$('#exerciseFields').style.display='none';$('#exercisePlaceholder').style.display='';}
+ catch(e){console.error(e);alert('삭제하지 못했습니다.')}
+};
+
 /* ===================== 동기화 / 로그인 ===================== */
 function startSync(){
-  if(unsub)unsub(); if(memoUnsub)memoUnsub(); if(routineUnsub)routineUnsub(); if(notebookUnsub)notebookUnsub();
+  if(unsub)unsub(); if(memoUnsub)memoUnsub(); if(routineUnsub)routineUnsub(); if(notebookUnsub)notebookUnsub(); if(exerciseUnsub)exerciseUnsub();
   setSync('동기화 중...');
   unsub=onSnapshot(userCol(),snap=>{events=snap.docs.map(d=>({id:d.id,...d.data()}));setSync('동기화됨','ok');renderCalendar()},err=>{console.error(err);setSync('동기화 오류','err')});
   memoUnsub=onSnapshot(memoCol(),snap=>{memos=snap.docs.map(d=>({id:d.id,...d.data()}));renderCalendar()},err=>console.error(err));
   routineUnsub=onSnapshot(routineCol(),snap=>{routines=snap.docs.map(d=>({id:d.id,...d.data()}));renderRoutines()},err=>{console.error(err);setSync('업무 리스트 동기화 오류','err')});
+  exerciseUnsub=onSnapshot(exerciseCol(),snap=>{exercises=snap.docs.map(d=>({id:d.id,...d.data()}));renderExercises()},err=>{console.error(err);setSync('운동 기록 동기화 오류','err')});
   notebookUnsub=onSnapshot(notebookCol(),snap=>{notebook=snap.docs.map(d=>({id:d.id,...d.data()}));renderNotebook();if(selectedNoteId&&!draftNew){const n=notebook.find(x=>x.id===selectedNoteId);if(!n){selectedNoteId=null;$('#noteFields').style.display='none';$('#notePlaceholder').style.display='';}}},err=>{console.error(err);setSync('노트 동기화 오류','err')});
 }
 $('#loginBtn').onclick=async()=>{
@@ -1053,8 +1179,8 @@ onAuthStateChanged(auth,u=>{
   user=u;
   if(u){$('#loginBtn').style.display='none';$('#logoutBtn').style.display='';$('#authUser').textContent=u.email||'';startSync()}
   else{
-    if(unsub)unsub(); if(memoUnsub)memoUnsub(); if(routineUnsub)routineUnsub(); if(notebookUnsub)notebookUnsub(); unsub=memoUnsub=routineUnsub=notebookUnsub=null;
-    events=[];memos=[];routines=[];notebook=[];selectedNoteId=null;draftNew=false;$('#noteFields').style.display='none';$('#notePlaceholder').style.display='';
+    if(unsub)unsub(); if(memoUnsub)memoUnsub(); if(routineUnsub)routineUnsub(); if(notebookUnsub)notebookUnsub(); if(exerciseUnsub)exerciseUnsub(); unsub=memoUnsub=routineUnsub=notebookUnsub=exerciseUnsub=null;
+    events=[];memos=[];routines=[];notebook=[];exercises=[];renderExercises();selectedNoteId=null;draftNew=false;$('#noteFields').style.display='none';$('#notePlaceholder').style.display='';
     $('#loginBtn').style.display='';$('#logoutBtn').style.display='none';$('#authUser').textContent='';setSync('로그인 필요');
     renderCalendar();renderRoutines();renderNotebook();
   }
@@ -1132,16 +1258,20 @@ $('#routineFilters').onclick=e=>{
 function setView(v){
   document.body.classList.toggle('view-routine',v==='routine');
   document.body.classList.toggle('view-notes',v==='notes');
+  document.body.classList.toggle('view-exercise',v==='exercise');
   document.querySelectorAll('.viewTab').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  document.querySelectorAll('.mobileBottomNav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
   try{localStorage.setItem('hView',v)}catch(_){}
   renderRoutines();renderNotebook(); window.scrollTo(0,0);
 }
+$('.mobileBottomNav').onclick=e=>{const b=e.target.closest('button[data-view]');if(b)setView(b.dataset.view)};
+$('#mobileFab').onclick=()=>openModal(ymd(new Date()));
 $('#viewTabs').onclick=e=>{const b=e.target.closest('.viewTab'); if(b)setView(b.dataset.view)};
-try{const v=localStorage.getItem('hView');if(v==='routine'||v==='notes')setView(v);}catch(_){}
+try{const v=localStorage.getItem('hView');if(['routine','notes','exercise'].includes(v))setView(v);else setView('calendar');}catch(_){}
 
 $('#backupBtn').onclick=()=>{
   if(!requireLogin())return;
-  const blob=new Blob([JSON.stringify({events,memos,routines,notebook},null,2)],{type:'application/json'}), a=document.createElement('a');
+  const blob=new Blob([JSON.stringify({events,memos,routines,notebook,exercises},null,2)],{type:'application/json'}), a=document.createElement('a');
   a.href=URL.createObjectURL(blob); a.download=`hjm-dashboard-backup-${ymd(new Date())}.json`; a.click(); URL.revokeObjectURL(a.href);
 };
 $('#restoreInput').onchange=async e=>{
@@ -1149,12 +1279,13 @@ $('#restoreInput').onchange=async e=>{
   const f=e.target.files[0]; if(!f)return;
   try{
     const data=JSON.parse(await f.text());
-    const ev=Array.isArray(data)?data:(data.events||[]), mm=Array.isArray(data)?[]:(data.memos||[]), rr=Array.isArray(data)?[]:(data.routines||[]), nn=Array.isArray(data)?[]:(data.notebook||[]);
+    const ev=Array.isArray(data)?data:(data.events||[]), mm=Array.isArray(data)?[]:(data.memos||[]), rr=Array.isArray(data)?[]:(data.routines||[]), nn=Array.isArray(data)?[]:(data.notebook||[]), xx=Array.isArray(data)?[]:(data.exercises||[]);
     const b=writeBatch(db);
     ev.forEach(x=>{const id=x.id||'e'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_events',id),{...x,id})});
     mm.forEach(x=>{const id=x.id||'m'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_memos',id),{...x,id})});
     rr.forEach(x=>{const id=x.id||'r'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_routines',id),{...x,id})});
     nn.forEach(x=>{const id=x.id||'note-'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_notebook',id),{...x,id})});
+    xx.forEach(x=>{const id=x.id||'exercise-'+Date.now()+Math.random();b.set(doc(db,'users',user.uid,'hjm_exercises',id),{...x,id})});
     await b.commit(); alert('복원했습니다.');
   }catch{alert('올바른 백업 파일이 아닙니다.')}
   e.target.value='';
@@ -1169,6 +1300,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayCheck()
 renderCalendar();
 renderRoutines();
 renderNotebook();
+renderExercises();
 </script>
 
 <script>
