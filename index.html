@@ -997,12 +997,20 @@ function renderCalendar(){
         });
       }
       cell.innerHTML=`<div class="dateRow"><div class="dateNum">${dt.getDate()}</div><button class="addMini" title="일정 추가">＋</button></div>${barSpace?`<div class="barSpacer" style="height:${barSpace}px"></div>`:''}`;
-      cell.querySelector('.addMini').onclick=()=>openModal(ds);
+      // 모바일: 날짜 칸의 빈 공간이나 날짜 숫자를 누르면 해당 날짜 일정 추가.
+      // 기존 일정/메모 버튼은 기존 편집 동작을 유지한다.
+      cell.addEventListener('click',ev=>{
+        if(window.matchMedia('(max-width: 900px)').matches &&
+           !ev.target.closest('.single, .range, .memoItem, .memoAdd, .addMini')){
+          openModal(ds);
+        }
+      });
+      cell.querySelector('.addMini').onclick=ev=>{ev.stopPropagation();openModal(ds)};
       events.filter(e=>e.start===e.end&&e.start===ds&&visible(e)).sort((a,b)=>a.title.localeCompare(b.title)).forEach(e=>{
         const it=document.createElement('div'); it.className=`single ${e.cat}${e.done?' done':''}`;
         it.textContent=(e.done?'✓ ':'')+e.title; it.title=e.title;
         makeDraggable(it,e.id);
-        it.onclick=()=>openModal(null,e.id); cell.appendChild(it);
+        it.onclick=ev=>{ev.stopPropagation();openModal(null,e.id)}; cell.appendChild(it);
       });
       const dayMemos=memos.filter(m=>m.date===ds).sort((a,b)=>Number(!!a.done)-Number(!!b.done)||a.createdAt-b.createdAt);
       if(dayMemos.length){
