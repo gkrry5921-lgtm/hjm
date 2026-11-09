@@ -1,0 +1,19 @@
+name: HJM iPhone Daily Push
+on:
+  schedule:
+    - cron: '0 0 * * *' # UTC 00:00 = KST 09:00
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install firebase-admin==7.1.0
+      - run: python scripts/send_push.py
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
