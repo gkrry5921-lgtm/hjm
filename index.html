@@ -740,6 +740,17 @@ async function registerPush(){
  }catch(err){console.error('Push setup error',err);pushNotice('푸시 설정 실패: '+(err.message||String(err)))}
 }
 pushButton.addEventListener('click',registerPush);
+// 앱이 열려 있을 때 도착한 푸시도 알림으로 띄우기
+(async()=>{
+ try{
+   if(!('serviceWorker' in navigator)||!('Notification' in window)||Notification.permission!=='granted'||!(await isSupported()))return;
+   const reg=await navigator.serviceWorker.getRegistration('./'); if(!reg)return;
+   onMessage(getMessaging(app),p=>{
+     const n=p.notification||{}, d=p.data||{};
+     reg.showNotification(n.title||d.title||'H군 체크리스트',{body:n.body||d.body||'',icon:'./icon-192.png'});
+   });
+ }catch(e){console.warn('푸시 수신 설정 실패',e)}
+})();
 try{
  if('Notification' in window&&Notification.permission==='granted')pushButton.textContent='🔔 푸시 확인';
 }catch(_){}
