@@ -18,6 +18,17 @@ const fcm = getMessaging();
 const APP_URL = (process.env.APP_URL || '').trim();            // 예: https://아이디.github.io/저장소/
 const SLACK_WEBHOOK_URL = (process.env.SLACK_WEBHOOK_URL || '').trim();
 const ONLY = (process.env.ONLY || 'push').trim();               // push | slack
+const FORCE = process.env.FORCE === 'true';                      // 수동 실행이면 이미 보냈어도 다시 보냄
+
+// 예약 실행이 빠지는 날을 대비해 여러 번 예약해 두고, 같은 날 두 번 가지 않도록 보낸 날짜를 기록합니다.
+const metaRef = uid => db.collection('users').doc(uid).collection('hjm_meta').doc('notify');
+async function alreadySent(uid, key, date) {
+  if (FORCE) return false;
+  const s = await metaRef(uid).get();
+  return s.exists && s.data()[key] === date;
+}
+const markSent = (uid, key, date) => metaRef(uid).set({ [key]: date, [key + 'At']: Date.now() }, { merge: true });
+const prevDay = ds => { const d = new Date(ds + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return ymd(d); };
 
 // GitHub 예약 실행은 몇 분씩 늦게 시작되므로 조금 일찍 시작해서 정해진 시각까지 기다립니다.
 async function waitUntil(h, m) {
@@ -50,6 +61,7 @@ async function sendPush(byUser, today) {
   if (!byUser.size) { console.log('등록된 푸시 기기가 없습니다. 앱에서 🔔 푸시 켜기를 먼저 눌러주세요.'); return true; }
   let ok = 0, fail = 0;
   for (const [uid, toks] of byUser) {
+    if (await alreadySent(uid, 'push', today)) { console.log('오늘 푸시는 이미 보냈습니다. 건너뜁니다.'); continue; }
     const { title, body } = buildPush(await userCol(uid, 'hjm_events'), today);
     const webNotification = { title, body };
     if (APP_URL) webNotification.icon = new URL('icon-192.png', APP_URL).href;
@@ -67,6 +79,7 @@ async function sendPush(byUser, today) {
         await toks[i].ref.delete().catch(() => { });
       }
     }
+    if (res.successCount > 0) await markSent(uid, 'push', today);
   }
   console.log(`푸시 발송: 성공 ${ok}건, 실패 ${fail}건`);
   return ok > 0 || fail === 0;
@@ -77,11 +90,12 @@ async function sendSlack(uids, today) {
   if (!uids.length) { console.log('슬랙으로 보낼 사용자를 찾지 못했습니다.'); return false; }
   let allOk = true;
   for (const uid of uids) {
+    if (await alreadySent(uid, 'slack', today)) { console.log('오늘 밤 슬랙 브리핑은 이미 보냈습니다. 건너뜁니다.'); continue; }
     const [events, memos, routines] = await Promise.all([userCol(uid, 'hjm_events'), userCol(uid, 'hjm_memos'), userCol(uid, 'hjm_routines')]);
     const payload = buildSlack({ events, memos, routines }, today, APP_URL);
     const res = await fetch(SLACK_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const txt = await res.text();
-    if (res.ok) console.log('슬랙 브리핑 발송 완료');
+    if (res.ok) { console.log('슬랙 브리핑 발송 완료'); await markSent(uid, 'slack', today); }
     else { allOk = false; console.error('슬랙 발송 실패:', res.status, txt); }
   }
   return allOk;
@@ -101,7 +115,8 @@ async function main() {
   }
   if (ONLY === 'slack') {
     await waitUntil(23, 0);
-    const today = ymd(kstNow());
+    let today = ymd(kstNow());
+    if (kstNow().getUTCHours() < 6) today = prevDay(today);   // 자정을 넘겨 늦게 실행돼도 '전날 밤' 브리핑으로 보냄
     console.log('슬랙 브리핑: 오늘(KST)', today, '→ 내일 준비');
     try { slackOk = await sendSlack(uids, today); } catch (e) { slackOk = false; console.error('슬랙 오류:', e); }
   }
