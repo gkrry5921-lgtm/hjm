@@ -2,14 +2,21 @@ name: 밤 11시 슬랙 내일 준비
 
 on:
   schedule:
-    # 매일 22:40 KST(= UTC 13:40)에 시작해서 23:00 정각에 슬랙 브리핑
-    - cron: '40 13 * * *'
+    # GitHub 예약 실행은 가끔 늦거나 빠지는 날이 있어서 세 번 예약해 둡니다.
+    # 먼저 성공한 한 번만 보내고 나머지는 '이미 보냈음'으로 건너뜁니다.
+    - cron: '40 13 * * *'   # 22:40 KST
+    - cron: '5 14 * * *'   # 23:05 KST
+    - cron: '35 14 * * *'   # 23:35 KST
   workflow_dispatch:
     inputs:
       now:
         description: '기다리지 않고 바로 보내기 (테스트용)'
         type: boolean
         default: true
+
+concurrency:
+  group: slack-notify
+  cancel-in-progress: false
 
 jobs:
   slack:
@@ -30,4 +37,5 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           APP_URL: ${{ vars.APP_URL }}
           SKIP_WAIT: ${{ github.event_name == 'workflow_dispatch' && inputs.now }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' }}
           ONLY: slack
