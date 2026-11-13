@@ -1,0 +1,33 @@
+name: 밤 11시 슬랙 내일 준비
+
+on:
+  schedule:
+    # 매일 22:40 KST(= UTC 13:40)에 시작해서 23:00 정각에 슬랙 브리핑
+    - cron: '40 13 * * *'
+  workflow_dispatch:
+    inputs:
+      now:
+        description: '기다리지 않고 바로 보내기 (테스트용)'
+        type: boolean
+        default: true
+
+jobs:
+  slack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: push
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: node morning-push.mjs
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          APP_URL: ${{ vars.APP_URL }}
+          SKIP_WAIT: ${{ github.event_name == 'workflow_dispatch' && inputs.now }}
+          ONLY: slack
