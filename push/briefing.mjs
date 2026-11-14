@@ -102,7 +102,7 @@ export function buildSlack({ events = [], memos = [], routines = [], studyDone =
 
   const blocks = [
     { type: 'header', text: { type: 'plain_text', text: `🌙 내일 준비 · ${label(tomorrow)}`, emoji: true } },
-    section(`*📅 내일 일정 ${evs.length}개*\n` + (evs.length ? evs.map(evLine).join('\n') : '내일 등록된 일정이 없어요.') +
+    section(`<!channel> 내일 준비 브리핑이 왔어요\n\n*📅 내일 일정 ${evs.length}개*\n` + (evs.length ? evs.map(evLine).join('\n') : '내일 등록된 일정이 없어요.') +
       (ms.length ? `\n\n*📝 내일 메모*\n` + ms.map(m => `• ${sx(m.text)}`).join('\n') : '')),
     section(`*🗂 내일 마감 업무 ${tmr.length}개*\n` + (tmr.length ? tmr.map(r => taskLine(r, 'tmr')).join('\n') : '내일 마감인 업무가 없어요.')),
   ];
@@ -134,6 +134,6 @@ export function buildSlack({ events = [], memos = [], routines = [], studyDone =
     elements: [{ type: 'mrkdwn', text: `이번 주(${md(ws)}~${md(we)}) 일정 ${wkEv.length}개 중 ${wkDone}개 완료 · ${pct}%` + (appUrl ? `  |  <${appUrl}|체크리스트 열기>` : '') }]
   });
 
-  const text = `내일(${label(tomorrow)}) 준비 · 일정 ${evs.length}개, 마감 업무 ${tmr.length}개, 안 끝난 업무 ${unfinished.length}개`;
+  const text = `<!channel> 내일(${label(tomorrow)}) 준비 · 일정 ${evs.length}개, 마감 업무 ${tmr.length}개, 안 끝난 업무 ${unfinished.length}개`;
   return { text, blocks };
 }
