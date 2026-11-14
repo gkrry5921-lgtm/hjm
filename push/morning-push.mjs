@@ -42,6 +42,10 @@ async function waitUntil(h, m) {
   }
 }
 
+async function studyDoneOf(uid) {
+  try { const s = await db.collection('users').doc(uid).collection('hjm_study').doc('swexam').get(); return s.exists ? (s.data().done || {}) : null; }
+  catch (e) { console.warn('학습계획 읽기 실패:', e.message); return null; }
+}
 const userCol = (uid, name) => db.collection('users').doc(uid).collection(name).get().then(s => s.docs.map(d => d.data()));
 
 async function collectTokens() {
@@ -62,7 +66,7 @@ async function sendPush(byUser, today) {
   let ok = 0, fail = 0;
   for (const [uid, toks] of byUser) {
     if (await alreadySent(uid, 'push', today)) { console.log('오늘 푸시는 이미 보냈습니다. 건너뜁니다.'); continue; }
-    const { title, body } = buildPush(await userCol(uid, 'hjm_events'), today);
+    const { title, body } = buildPush(await userCol(uid, 'hjm_events'), today, await studyDoneOf(uid));
     const webNotification = { title, body };
     if (APP_URL) webNotification.icon = new URL('icon-192.png', APP_URL).href;
     const webpush = { notification: webNotification, headers: { Urgency: 'high', TTL: String(6 * 3600) } };
@@ -91,8 +95,8 @@ async function sendSlack(uids, today) {
   let allOk = true;
   for (const uid of uids) {
     if (await alreadySent(uid, 'slack', today)) { console.log('오늘 밤 슬랙 브리핑은 이미 보냈습니다. 건너뜁니다.'); continue; }
-    const [events, memos, routines] = await Promise.all([userCol(uid, 'hjm_events'), userCol(uid, 'hjm_memos'), userCol(uid, 'hjm_routines')]);
-    const payload = buildSlack({ events, memos, routines }, today, APP_URL);
+    const [events, memos, routines, studyDone] = await Promise.all([userCol(uid, 'hjm_events'), userCol(uid, 'hjm_memos'), userCol(uid, 'hjm_routines'), studyDoneOf(uid)]);
+    const payload = buildSlack({ events, memos, routines, studyDone }, today, APP_URL);
     const res = await fetch(SLACK_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const txt = await res.text();
     if (res.ok) { console.log('슬랙 브리핑 발송 완료'); await markSent(uid, 'slack', today); }

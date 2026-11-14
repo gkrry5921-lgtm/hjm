@@ -1,4 +1,5 @@
 // 아침 알림 문구를 만드는 함수 모음 (아이폰 푸시 · 슬랙 공용)
+import { STUDY_EXAM, STUDY_BY_DATE, isStudyWork } from './study-plan.mjs';
 export const WD = ['일', '월', '화', '수', '목', '금', '토'];
 const CATS = ['NCMN', 'CGN', '개인일정', '퐁당'];
 const KST = 9 * 3600 * 1000;
@@ -28,18 +29,33 @@ export function todayEvents(events, today) {
     .sort(sortEvents);
 }
 
+// ---------------- 학습계획 ----------------
+// date의 공부 항목, 그 전날까지 밀린 공부 수, 시험까지 남은 날
+export function studyInfo(date, done = {}, upto = date) {
+  const it = STUDY_BY_DATE[date] || null;
+  const behind = Object.entries(STUDY_BY_DATE).filter(([d, x]) => d < upto && isStudyWork(x) && !done[d]).map(([d, x]) => ({ d, t: x.t }));
+  const dday = diffDays(date, STUDY_EXAM);
+  return { it, behind, dday, doneToday: !!done[date] };
+}
+const hrs = it => isStudyWork(it) ? ` (${it.h || 2}시간)` : '';
+
 // ---------------- 아이폰 푸시 ----------------
-export function buildPush(events, today) {
+export function buildPush(events, today, studyDone = null) {
   const list = todayEvents(events, today);
-  if (!list.length) return { title: `${label(today)} 오늘 일정`, body: '오늘 등록된 일정이 없어요.' };
   const lines = list.map(e => {
     const end = e.end || e.start;
     const range = e.start !== end ? ` (~${md(end)})` : '';
     return `${e.done ? '✓' : '•'} [${catName(e.cat)}] ${e.title}${range}`;
   });
+  if (!lines.length) lines.push('오늘 등록된 일정이 없어요.');
+  if (studyDone) {
+    const { it, behind, dday } = studyInfo(today, studyDone);
+    if (it && it.k === 'exam') lines.push('📝 오늘 사회복지사 1급 시험! 신분증·수험표·사인펜 챙기기');
+    else if (it) lines.push(`📚 공부 D-${dday}: ${it.t}${hrs(it)}` + (behind.length ? ` · 밀린 ${behind.length}일` : ''));
+  }
   let body = lines.join('\n');
   if (body.length > 1500) body = body.slice(0, 1500) + '\n…';
-  return { title: `${label(today)} 오늘 일정 ${list.length}개`, body };
+  return { title: list.length ? `${label(today)} 오늘 일정 ${list.length}개` : `${label(today)} 오늘 일정`, body };
 }
 
 // ---------------- 슬랙 ----------------
@@ -52,7 +68,7 @@ const repeatText = r => {
 };
 
 // 밤 11시에 보내는 '내일 준비' 브리핑. today = 보내는 날(오늘), tomorrow = 다음 날
-export function buildSlack({ events = [], memos = [], routines = [] }, today, appUrl = '') {
+export function buildSlack({ events = [], memos = [], routines = [], studyDone = null }, today, appUrl = '') {
   const tomorrow = addDays(today, 1);
   const { ws, we } = weekRange(today);
   const tw = weekRange(tomorrow);
@@ -89,8 +105,20 @@ export function buildSlack({ events = [], memos = [], routines = [] }, today, ap
     section(`*📅 내일 일정 ${evs.length}개*\n` + (evs.length ? evs.map(evLine).join('\n') : '내일 등록된 일정이 없어요.') +
       (ms.length ? `\n\n*📝 내일 메모*\n` + ms.map(m => `• ${sx(m.text)}`).join('\n') : '')),
     section(`*🗂 내일 마감 업무 ${tmr.length}개*\n` + (tmr.length ? tmr.map(r => taskLine(r, 'tmr')).join('\n') : '내일 마감인 업무가 없어요.')),
-    { type: 'divider' }
   ];
+  if (studyDone) {
+    const s = studyInfo(tomorrow, studyDone, today);
+    const todayS = STUDY_BY_DATE[today];
+    let t = '';
+    if (s.it && s.it.k === 'exam') t = `*📝 내일 사회복지사 1급 시험!*\n수험표·신분증·컴퓨터용 사인펜 챙기고 일찍 자기`;
+    else if (s.it) {
+      t = `*📚 내일 공부 · 시험 D-${s.dday}*\n• ${sx(s.it.t)}${hrs(s.it)}` + (s.it.n ? `\n   _${sx(s.it.n)}_` : '');
+      if (isStudyWork(todayS)) t += `\n오늘 공부(${sx(todayS.t)}) ${studyDone[today] ? '✅ 완료' : '⬜ 아직 체크 안 함'}`;
+      if (s.behind.length) t += `\n🔴 밀린 공부 ${s.behind.length}일 · ` + s.behind.slice(0, 3).map(b => `${md(b.d)} ${sx(b.t)}`).join(', ') + (s.behind.length > 3 ? ' 외' : '');
+    }
+    if (t) blocks.push(section(t));
+  }
+  blocks.push({ type: 'divider' });
   if (unfinished.length || todayLeft.length) {
     const parts = [];
     if (unfinished.length) parts.push(`*🔴 아직 안 끝난 업무 ${unfinished.length}개*\n` + unfinished.map(r => taskLine(r, 'late')).join('\n'));
