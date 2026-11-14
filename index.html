@@ -83,7 +83,7 @@ svg{flex:0 0 auto}
 
 /* ---------- 공통 레이아웃 ---------- */
 .view{display:none}
-body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes #notesView,body.view-exercise #exerciseView{display:block}
+body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes #notesView,body.view-exercise #exerciseView,body.view-study #studyView{display:block}
 .wrap{max-width:1560px;margin:0 auto;padding:20px 28px 40px}
 .pageTitle{margin:0;font-size:28px;font-weight:900;letter-spacing:-.6px}
 .pageSub{margin-top:4px;font-size:13.5px;font-weight:600;color:var(--muted)}
@@ -276,6 +276,57 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
 .xText{width:100%;min-height:84px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14.5px;line-height:1.6;outline:none;resize:vertical;background:#FFFFFF}
 .xText:focus{border-color:var(--ink)}
 
+/* ---------- 학습계획 ---------- */
+.sLayout{max-width:1240px;margin:0 auto;padding:24px 28px 40px;display:flex;gap:20px;align-items:flex-start}
+.sSide{flex:0 0 360px;display:flex;flex-direction:column;gap:14px;position:sticky;top:84px}
+.sMain{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+.sHero{padding:20px;display:flex;flex-direction:column;gap:10px}
+.sTitle{margin:0;font-size:22px;font-weight:900;letter-spacing:-.4px}
+.sSub{font-size:12.5px;color:var(--muted);line-height:1.5}
+.dday{display:flex;align-items:baseline;gap:10px}
+.dday b{font-size:40px;font-weight:900;letter-spacing:-1px;line-height:1}
+.dday span{font-size:13px;font-weight:700;color:var(--muted)}
+.sStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sStat{background:var(--soft);border-radius:12px;padding:10px 12px}
+.sStat span{font-size:11.5px;font-weight:700;color:var(--sub)}
+.sStat b{display:block;font-size:18px;font-weight:900}
+.sToday{padding:18px;display:flex;flex-direction:column;gap:8px;background:var(--ink);border-color:var(--ink);color:#FFFFFF}
+.sToday .lbl{font-size:12px;font-weight:800;opacity:.75}
+.sToday .task{font-size:17px;font-weight:800;line-height:1.4}
+.sToday .note{font-size:13px;opacity:.8;line-height:1.5}
+.sToday .behind{font-size:12.5px;font-weight:700;color:#FFD9D9}
+.sToday .btn{align-self:flex-start;background:#FFFFFF;color:var(--ink);border-color:#FFFFFF;margin-top:4px}
+.sRoutine{padding:16px 18px}
+.sRoutine h2{margin:0 0 8px;font-size:14.5px;font-weight:800}
+.sRoutine ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.5}
+.sRoutine li em{font-style:normal;font-weight:800;color:var(--sat);margin-right:4px}
+.sPhase{font-size:12.5px;font-weight:800;color:var(--muted);margin:10px 4px 0}
+.sWeek{overflow:hidden}
+.sWeek summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px}
+.sWeek summary::-webkit-details-marker{display:none}
+.sWeek summary .wk{font-size:12px;font-weight:800;color:var(--sat);white-space:nowrap}
+.sWeek summary .tt{font-size:15px;font-weight:800;flex:1;min-width:0;word-break:keep-all}
+.sWeek summary .mt{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.sWeek summary .chev{transition:transform .15s;color:var(--muted)}
+.sWeek[open] summary .chev{transform:rotate(180deg)}
+.sWeek.cur{border-color:var(--ink)}
+.sWeekNote{margin:0 16px 10px;font-size:12.5px;font-weight:700;color:var(--danger-ink);background:var(--danger-soft);border-radius:10px;padding:8px 10px}
+.sRow{display:grid;grid-template-columns:44px 64px minmax(0,1fr);align-items:start;gap:4px;padding:4px 14px 4px 6px;border-top:1px solid var(--line2)}
+.sRow.today{background:#FFF8D6}
+.sRow .dt{padding-top:12px;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.sRow.sun .dt b{color:var(--sun)}
+.sRow .bd{padding:9px 0}
+.sRow .tl{font-size:14.5px;font-weight:700;line-height:1.45}
+.sRow.done .tl{text-decoration:line-through;color:var(--muted)}
+.sRow .nt{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+.sTag{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px;margin-right:6px;vertical-align:1px;background:var(--soft);color:var(--sub)}
+.sTag.lec{background:#EAF1FD;color:#2B58B5}
+.sTag.book{background:#E6F5EE;color:#23784F}
+.sTag.exam{background:var(--danger);color:#FFFFFF}
+.sTag.off{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.sHrs{font-size:11.5px;font-weight:700;color:var(--muted);margin-left:6px}
+.sOffBox{width:44px}
+
 /* ---------- 모달 ---------- */
 .modalBackdrop{position:fixed;inset:0;background:rgba(31,42,68,.3);display:none;align-items:center;justify-content:center;z-index:80;padding:16px}
 .modalBackdrop.show{display:flex}
@@ -398,6 +449,14 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
   .xHead,.xRow{grid-template-columns:36px minmax(0,1fr) minmax(0,1fr) 44px 28px;gap:5px}
   .formGrid{grid-template-columns:1fr 1fr}
   .toast{bottom:calc(100px + env(safe-area-inset-bottom))}
+  .bottomNav{grid-template-columns:repeat(5,1fr)}
+  .bottomNav button{font-size:10.5px}
+  .sLayout{display:block;padding:14px 14px 20px}
+  .sSide{position:static;margin-bottom:14px}
+  .sHero{border:0;background:var(--soft)}
+  .sRoutine{display:none}
+  .sWeek summary{padding:13px 14px}
+  .sRow{grid-template-columns:40px 54px minmax(0,1fr);padding-right:10px}
 }
 </style>
 </head>
@@ -412,6 +471,7 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
     <button class="viewTab" data-view="routine">업무 리스트<span class="tabBadge routineBadge" hidden></span></button>
     <button class="viewTab" data-view="notes">노트</button>
     <button class="viewTab" data-view="exercise">운동기록지</button>
+    <button class="viewTab" data-view="study">학습계획</button>
   </nav>
   <div class="headerRight">
     <span id="syncStatus" class="syncText">로그인 필요</span>
@@ -578,11 +638,41 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
   </div>
 </section>
 
+<!-- ===================== 학습계획 ===================== -->
+<section id="studyView" class="view">
+  <div class="sLayout">
+    <aside class="sSide">
+      <section class="card sHero" aria-label="시험까지">
+        <h1 class="sTitle">사회복지사 1급 학습계획표</h1>
+        <div class="sSub">강의 24강 → 기출문제집 → 실전 · 평일 2시간, 토요일 3시간</div>
+        <div class="dday"><b id="sDday">D-</b><span>제25회 시험 2027년 1월 16일(토)</span></div>
+        <div class="bar"><i id="sBar"></i></div>
+        <div class="sStats">
+          <div class="sStat"><span>전체 진도</span><b id="sAll">0 / 0일</b></div>
+          <div class="sStat"><span>강의</span><b id="sLec">0 / 24강</b></div>
+        </div>
+      </section>
+      <section id="sToday" class="card sToday" aria-label="오늘 할 공부"></section>
+      <section class="card sRoutine" aria-label="강의 날 루틴">
+        <h2>강의 날 2시간 루틴</h2>
+        <ol>
+          <li><em>25분</em>어제 범위 빈출선지 O/X 가리고 풀기</li>
+          <li><em>10분</em>오늘 강의 범위 예습: 키워드 공략포인트와 빈출선지만 훑기</li>
+          <li><em>약 60분</em>책 펴고 1.25배속으로 강의, 강조하는 곳은 책에 바로 표시</li>
+          <li><em>25분</em>STEP 3 필수문제 풀고 틀린 번호 표시</li>
+        </ol>
+      </section>
+    </aside>
+    <main id="sWeeks" class="sMain" aria-label="주차별 계획"></main>
+  </div>
+</section>
+
 <nav class="bottomNav" aria-label="모바일 메뉴">
   <button data-view="calendar"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>일정</button>
   <button data-view="routine"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 2 2 4-4M3 14l2 2 4-4"/><path d="M13 6h8M13 14h8M13 20h8"/></svg>업무 리스트<span class="tabBadge routineBadge" hidden></span></button>
   <button data-view="notes"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>노트</button>
   <button data-view="exercise"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>운동기록지</button>
+  <button data-view="study"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>학습계획</button>
 </nav>
 <button id="fab" class="fab" aria-label="일정 추가"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -1336,9 +1426,96 @@ $('#xDelete').onclick=async()=>{
 };
 function initExerciseDraft(){if(xLoaded||!user)return;xLoaded=true;openExerciseDate(todayStr())}
 
+/* ===================== 학습계획 (사회복지사 1급) ===================== */
+const STUDY_EXAM='2027-01-16';
+const STUDY_SEED={'2026-11-02':true,'2026-11-03':true,'2026-11-04':true,'2026-11-05':true,'2026-11-06':true,'2026-11-07':true,'2026-11-09':true,'2026-11-10':true,'2026-11-11':true,'2026-11-12':true,'2026-11-13':true};
+let studyDone={}, studyLoaded=false, studyUnsub=null, studyOpen=new Set();
+const STUDY_PLAN=(()=>{
+  const DUR={1:'1:20:53',2:'58:46',3:'48:04',4:'57:44',5:'1:00:45',6:'1:05:10',7:'1:18:18',8:'1:17:53',9:'1:11:09',10:'58:32',11:'55:27',12:'1:16:07',13:'1:07:30',14:'1:16:36',15:'1:00:47',16:'1:06:36',17:'1:00:14',18:'1:00:11',19:'1:03:17',20:'1:02:49',21:'46:44',22:'54:34',23:'58:11',24:'1:11:12'};
+  const SUBJ={1:'인행',2:'인행',3:'인행',4:'조사론',5:'조사론',6:'조사론',7:'실천론',8:'실천론',9:'실천기술론',10:'실천기술론',11:'실천기술론',12:'지역사회',13:'지역사회',14:'정책론',15:'정책론',16:'정책론',17:'정책론',18:'행정론',19:'행정론',20:'행정론',21:'법제론',22:'법제론',23:'법제론',24:'법제론'};
+  const mins=n=>{const p=DUR[n].split(':').map(Number);const sec=p.length===3?p[0]*3600+p[1]*60+p[2]:p[0]*60+p[1];return Math.round(sec/1.25/60)};
+  const L=n=>({k:'lec',t:`${n}강 ${SUBJ[n]}`,n:`1.25배속 약 ${mins(n)}분 · 책 펴놓고 듣기`,lec:n});
+  const B=(t,n='')=>({k:'book',t,n});
+  const W=(n,note)=>({...L(n),t:`${n}강 ${SUBJ[n]} + 이번 주 복습`,n:note||'강의 후 남은 시간에 이번 주 들은 범위 빈출선지 O/X',h:3});
+  const O=(t='쉬는 날',n='밀린 게 있으면 여기서 메우기')=>({k:'off',t,n});
+  const E=(t,n)=>({k:'rev',t,n});
+  const KN='기출문제집 단원별 풀기 → 틀린 문제는 개념 책 해당 키워드로 돌아가 확인';
+  const T='단원별 풀고 마지막 30–40분에 책 뒤 "더 풀어볼 TEST" 시간 재고 풀기';
+  const K=(t,n=KN)=>({k:'book',t,n});
+  return [
+   {wk:'1주차',title:'인행 · 조사론',meta:'1–6강',phase:'1단계 · 강의로 1회독 (하루 1강, 11/28 끝)',d:[L(1),L(2),L(3),L(4),L(5),{k:'lec',t:'6강 조사론 + 인행 · 조사론 총복습',n:'6강 미리 듣기 완료 · 남은 시간에 1–6강 빈출선지 O/X + 틀린 키워드 다시 읽기',h:3,lec:6},O()]},
+   {wk:'2주차',title:'실천론 · 실천기술론 · 지역사회',meta:'7–12강',d:[L(7),L(8),L(9),L(10),L(11),W(12),O()]},
+   {wk:'3주차',title:'지역사회 · 정책론 · 행정론',meta:'13–18강',d:[L(13),L(14),L(15),L(16),L(17),W(18),O()]},
+   {wk:'4주차',title:'행정론 · 법제론',meta:'19–24강',note:'이번 주: 기출문제집 주문해두기 (강의 끝나고 바로 시작)',d:[L(19),L(20),L(21),L(22),L(23),W(24,'24강으로 강의 끝! 남은 시간에 법제론 빈출선지 O/X'),O()]},
+   {wk:'5주차',title:'인행 · 조사론 · 실천론',meta:'기출 단원별',phase:'2단계 · 기출문제집 단원별 풀이',note:'다음 주 12/7(월)부터 큐넷 원서접수 · 미리 사진 준비',d:[K('인행 ①'),K('인행 ② + 인행 TEST',T),K('조사론 ①'),K('조사론 ②'),K('조사론 ③ + 조사론 TEST',T),{k:'book',t:'실천론 전체 + 실천론 TEST',n:KN,h:3},O()]},
+   {wk:'6주차',title:'실천기술론 · 지역사회 · 정책론',meta:'기출 단원별',note:'원서접수 12/7(월) 09:00 ~ 12/11(금) 18:00 · 큐넷',d:[K('실천기술론 ①'),K('실천기술론 ② + TEST',T),K('지역사회 ①'),K('지역사회 ② + TEST',T),K('정책론 ①'),{k:'book',t:'정책론 ②③ + 정책론 TEST',n:KN,h:3},O()]},
+   {wk:'7주차',title:'행정론 · 법제론',meta:'기출 단원별',d:[K('행정론 ①'),K('행정론 ② + TEST',T),K('법제론 ①'),K('법제론 ②'),K('법제론 ③'),{k:'book',t:'법제론 TEST + 단원별 오답 정리',n:'TEST 점수로 약한 과목 체크해두기',h:3},O()]},
+   {wk:'8주차',title:'단원별 오답 다시',meta:'틀린 문제만',d:[B('1교시 과목 오답 다시','인행 · 조사론 · 표시해둔 문제만'),B('2교시 과목 오답 다시','실천론 · 실천기술론 · 지역사회'),B('3교시 과목 오답 다시','정책론 · 행정론 · 법제론'),B('약한 과목 개념 책 다시','TEST에서 40점 근처였던 과목'),O('크리스마스','가볍게 쉬어가기'),{k:'book',t:'약한 과목 단원별 다시 풀기',n:'틀렸던 문제를 해설 안 보고 다시',h:3},O()]},
+   {wk:'9주차',title:'회차별 실전',meta:'기출 회차별',phase:'3단계 · 회차별 실전과 마무리',d:[E('1교시 실전 (50문항 50분)','최근 회차 · 채점 후 틀린 문제 표시'),B('1교시 오답 → 개념 책 확인'),E('2교시 실전 (75문항 75분)','채점 후 틀린 문제 표시'),B('2교시 오답 → 개념 책 확인'),O('새해 첫날','쉬어가기'),{k:'rev',t:'3교시 실전 (75문항 75분) + 오답',n:'토요일이라 오답까지 한 번에',h:3},O()]},
+   {wk:'10주차',title:'약한 과목과 오답',meta:'과락 막기',note:'1/7(목)~1/8(금) 빈자리 추가접수 (정기접수 놓쳤을 때만)',d:[B('약한 과목 ①','TEST·실전에서 40점 근처였던 과목'),B('약한 과목 ②'),B('법제론 최근 개정 사항'),B('기출문제집 오답 다시 ①','표시해둔 문제만'),B('기출문제집 오답 다시 ②'),{k:'rev',t:'전 과목 모의 (다른 회차 200문항)',n:'실제 시간대로 3시간 20분 · 채점까지',h:3},O()]},
+   {wk:'11주차',title:'시험 주간',meta:'시크릿노트와 오답만',d:[B('모의 오답 정리'),B('시크릿노트 · 1교시','단권화로 적어둔 강의 내용까지'),B('시크릿노트 · 2교시'),B('시크릿노트 · 3교시'),B('오답 마지막 훑기 + 수험표 · 시험장 확인','일찍 자기'),{k:'exam',t:'제25회 사회복지사 1급 시험',n:'3교시 200문항 · 수험표, 신분증, 컴퓨터용 사인펜 챙기기'}]}
+  ].map((w,i)=>({...w,rows:w.d.map((it,j)=>{const d=new Date(2026,10,2+i*7+j);return {ds:ymd(d),d,it}})}));
+})();
+const STUDY_ROWS=STUDY_PLAN.flatMap(w=>w.rows).filter(r=>r.it.k!=='off'&&r.it.k!=='exam');
+const sTag=k=>k==='lec'?'<span class="sTag lec">강의</span>':k==='rev'?'<span class="sTag">실전·복습</span>':k==='off'?'<span class="sTag off">쉼</span>':k==='exam'?'<span class="sTag exam">시험</span>':'<span class="sTag book">책</span>';
+const sHrs=r=>r.it.k==='off'||r.it.k==='exam'?'':`<span class="sHrs">${r.it.h||2}h</span>`;
+async function saveStudy(){
+  if(!requireLogin())return;
+  try{await setDoc(doc(db,'users',user.uid,'hjm_study','swexam'),{done:studyDone,updatedAt:Date.now()})}
+  catch(err){console.error(err);toast('학습 진도를 저장하지 못했어요.')}
+}
+function toggleStudy(ds){if(!requireLogin())return;studyDone[ds]?delete studyDone[ds]:studyDone[ds]=true;renderStudy();saveStudy()}
+function renderStudy(){
+  const today=todayStr();
+  const dd=dateDiffDays(today,STUDY_EXAM);
+  $('#sDday').textContent=dd>0?`D-${dd}`:dd===0?'D-DAY':'시험 끝';
+  const doneN=STUDY_ROWS.filter(r=>studyDone[r.ds]).length, lecN=STUDY_ROWS.filter(r=>r.it.lec&&studyDone[r.ds]).length;
+  $('#sAll').textContent=`${doneN} / ${STUDY_ROWS.length}일`; $('#sLec').textContent=`${lecN} / 24강`;
+  $('#sBar').style.width=(doneN/STUDY_ROWS.length*100).toFixed(1)+'%';
+  const all=STUDY_PLAN.flatMap(w=>w.rows), tRow=all.find(r=>r.ds===today);
+  const behind=STUDY_ROWS.filter(r=>r.ds<today&&!studyDone[r.ds]);
+  const tBox=$('#sToday');
+  if(!user){tBox.innerHTML='<span class="lbl">오늘 할 공부</span><span class="task">Google 로그인 후 진도가 표시돼요</span>'}
+  else if(tRow){
+    const can=tRow.it.k!=='off'&&tRow.it.k!=='exam', on=!!studyDone[tRow.ds];
+    tBox.innerHTML=`<span class="lbl">오늘 ${shortDate(tRow.ds)}</span><span class="task">${esc(tRow.it.t)}${tRow.it.k==='off'||tRow.it.k==='exam'?'':` · ${tRow.it.h||2}시간`}</span>${tRow.it.n?`<span class="note">${esc(tRow.it.n)}</span>`:''}`+
+      (behind.length?`<span class="behind">밀린 날 ${behind.length}일 · ${esc(behind.slice(0,2).map(r=>shortDate(r.ds)+' '+r.it.t).join(', '))}${behind.length>2?' 외':''}</span>`:'')+
+      (can?`<button class="btn sm" id="sTodayBtn">${on?'완료 취소':'오늘 공부 완료 체크'}</button>`:'');
+    const b=$('#sTodayBtn'); if(b)b.onclick=()=>toggleStudy(tRow.ds);
+  }else tBox.innerHTML=`<span class="lbl">오늘</span><span class="task">${today>STUDY_EXAM?'시험 끝! 수고하셨어요 🎉':'계획 시작 전이에요'}</span>`;
+  const box=$('#sWeeks'); box.innerHTML='';
+  STUDY_PLAN.forEach((w,i)=>{
+    if(w.phase)box.insertAdjacentHTML('beforeend',`<div class="sPhase">${esc(w.phase)}</div>`);
+    const first=w.rows[0].ds, last=w.rows[w.rows.length-1].ds, cur=today>=first&&today<=last;
+    const work=w.rows.filter(r=>r.it.k!=='off'&&r.it.k!=='exam'), wDone=work.filter(r=>studyDone[r.ds]).length;
+    const open=studyOpen.has(i)||(!studyOpen.has(-1-i)&&(cur||(last>=today&&i<=STUDY_PLAN.findIndex(x=>x.rows[x.rows.length-1].ds>=today)+1)));
+    const det=document.createElement('details'); det.className='card sWeek'+(cur?' cur':''); det.open=open;
+    det.innerHTML=`<summary><span class="wk">${esc(w.wk)}</span><span class="tt">${esc(w.title)}</span><span class="mt">${work.length?`${wDone}/${work.length}`:''} · ${md(first)}~${md(last)}</span><svg class="chev" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary>`+
+      (w.note?`<div class="sWeekNote">${esc(w.note)}</div>`:'')+
+      w.rows.map(r=>{const off=r.it.k==='off'||r.it.k==='exam', on=!!studyDone[r.ds];
+        return `<div class="sRow${on?' done':''}${r.ds===today?' today':''}${r.d.getDay()===0?' sun':''}">`+
+          (off?'<span class="sOffBox"></span>':`<button class="check sq${on?' done':''}" data-ds="${r.ds}" aria-label="${esc(shortDate(r.ds)+' '+r.it.t)} ${on?'완료 취소':'완료 체크'}"><i>${on?IC.check:''}</i></button>`)+
+          `<span class="dt">${md(r.ds)} <b>${WD[r.d.getDay()]}</b></span><div class="bd"><div class="tl">${sTag(r.it.k)}${esc(r.it.t)}${sHrs(r)}</div>${r.it.n?`<div class="nt">${esc(r.it.n)}</div>`:''}</div></div>`}).join('');
+    det.addEventListener('toggle',()=>{studyOpen.delete(i);studyOpen.delete(-1-i);studyOpen.add(det.open?i:-1-i)});
+    box.appendChild(det);
+  });
+}
+$('#sWeeks').addEventListener('click',e=>{const b=e.target.closest('button[data-ds]');if(b)toggleStudy(b.dataset.ds)});
+function startStudySync(){
+  if(studyUnsub)studyUnsub();
+  studyUnsub=onSnapshot(doc(db,'users',user.uid,'hjm_study','swexam'),snap=>{
+    if(!snap.exists()){
+      // 처음 한 번: 예전 진도표에서 체크했던 날짜를 옮겨 와요
+      let local={}; try{local=(JSON.parse(localStorage.getItem('swexam-done')||'null')||{}).done||{}}catch(_){}
+      studyDone={...STUDY_SEED,...local}; studyLoaded=true; renderStudy(); saveStudy(); return;
+    }
+    studyDone={...(snap.data().done||{})}; studyLoaded=true; renderStudy();
+  },err=>console.error(err));
+}
+
 /* ===================== 동기화 / 로그인 ===================== */
 function userCol(n){return collection(db,'users',user.uid,n)}
-function stopSync(){[unsub,memoUnsub,routineUnsub,notebookUnsub,exerciseUnsub].forEach(f=>{if(f)f()});unsub=memoUnsub=routineUnsub=notebookUnsub=exerciseUnsub=null}
+function stopSync(){[unsub,memoUnsub,routineUnsub,notebookUnsub,exerciseUnsub,studyUnsub].forEach(f=>{if(f)f()});unsub=memoUnsub=routineUnsub=notebookUnsub=exerciseUnsub=studyUnsub=null}
 function startSync(){
   stopSync();
   setSync('동기화 중...');
@@ -1356,6 +1533,7 @@ function startSync(){
     renderNotebook();
     if(noteDraft&&!notebook.some(x=>x.id===noteDraft.id)&&noteDraft.updatedAt){noteDraft=null;selectedNoteId=null;loadNoteEditor()}
   },err=>{console.error(err);setSync('노트 동기화 오류','err')});
+  startStudySync();
 }
 $('#loginBtn').onclick=async()=>{
   try{ await setPersistence(auth,browserLocalPersistence); await signInWithPopup(auth,provider); }
@@ -1376,9 +1554,9 @@ onAuthStateChanged(auth,u=>{
   else{
     stopSync();
     events=[];memos=[];routines=[];notebook=[];exercises=[];
-    noteDraft=null;selectedNoteId=null;loadNoteEditor();xDraft=null;xLoaded=false;
+    noteDraft=null;selectedNoteId=null;loadNoteEditor();xDraft=null;xLoaded=false;studyDone={};studyLoaded=false;
     setSync('로그인 필요');
-    renderCalendar();renderRoutines();renderNotebook();renderExercisePanels();renderExerciseEditor();
+    renderCalendar();renderRoutines();renderNotebook();renderExercisePanels();renderExerciseEditor();renderStudy();
   }
 });
 
@@ -1436,9 +1614,9 @@ $('#rSave').onclick=async()=>{
 $('#rDelete').onclick=async()=>{if(routineEditing&&confirm('이 업무를 삭제할까요?')){const id=routineEditing;if(await removeRoutine(id))closeRoutine()}};
 
 function setView(v){
-  if(!['calendar','routine','notes','exercise'].includes(v))v='calendar';
+  if(!['calendar','routine','notes','exercise','study'].includes(v))v='calendar';
   saveNoteSoon.flush(); saveXSoon.flush();
-  document.body.classList.remove('view-calendar','view-routine','view-notes','view-exercise');
+  document.body.classList.remove('view-calendar','view-routine','view-notes','view-exercise','view-study');
   document.body.classList.add('view-'+v);
   if(v!=='notes')document.body.classList.remove('note-open');
   else document.body.classList.toggle('note-open',!!noteDraft&&!isDesktop());
@@ -1446,6 +1624,7 @@ function setView(v){
   $$('.bottomNav button').forEach(b=>{b.classList.toggle('active',b.dataset.view===v);if(b.dataset.view===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   try{localStorage.setItem('hView',v)}catch(_){}
   if(v==='exercise'){initExerciseDraft();if(!xDraft)renderExerciseEditor()}
+  if(v==='study')renderStudy();
   window.scrollTo(0,0);
 }
 $('.bottomNav').onclick=e=>{const b=e.target.closest('button[data-view]');if(b){if(b.dataset.view==='notes'&&document.body.classList.contains('view-notes'))closeNote();setView(b.dataset.view)}};
@@ -1455,7 +1634,7 @@ try{setView(localStorage.getItem('hView')||'calendar')}catch(_){setView('calenda
 $('#backupBtn').onclick=()=>{
   closeMenu();
   if(!requireLogin())return;
-  const blob=new Blob([JSON.stringify({events,memos,routines,notebook,exercises},null,2)],{type:'application/json'}), a=document.createElement('a');
+  const blob=new Blob([JSON.stringify({events,memos,routines,notebook,exercises,study:{done:studyDone}},null,2)],{type:'application/json'}), a=document.createElement('a');
   a.href=URL.createObjectURL(blob); a.download=`hjm-dashboard-backup-${todayStr()}.json`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
 $('#restoreInput').onchange=async e=>{
@@ -1468,6 +1647,7 @@ $('#restoreInput').onchange=async e=>{
     const sets=[['events','hjm_events','e'],['memos','hjm_memos','m'],['routines','hjm_routines','r'],['notebook','hjm_notebook','note-'],['exercises','hjm_exercises','exercise-']];
     const b=writeBatch(db);
     sets.forEach(([k,col,p])=>pick(k).forEach(x=>{const id=x.id||p+Date.now()+Math.random();b.set(doc(db,'users',user.uid,col,id),{...x,id})}));
+    if(data&&data.study&&data.study.done)b.set(doc(db,'users',user.uid,'hjm_study','swexam'),{done:data.study.done,updatedAt:Date.now()});
     await b.commit(); toast('복원했어요.');
   }catch{alert('올바른 백업 파일이 아닙니다.')}
   e.target.value='';
@@ -1475,7 +1655,7 @@ $('#restoreInput').onchange=async e=>{
 
 // 자정이 지나면 화면 갱신
 let lastDay=todayStr();
-const dayCheck=()=>{const d=todayStr(); if(d!==lastDay){if(selDate===lastDay)selDate=d;lastDay=d;renderCalendar();renderRoutines();renderExercisePanels()}};
+const dayCheck=()=>{const d=todayStr(); if(d!==lastDay){if(selDate===lastDay)selDate=d;lastDay=d;renderCalendar();renderRoutines();renderExercisePanels();renderStudy()}};
 setInterval(dayCheck,60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayCheck();else{saveNoteSoon.flush();saveXSoon.flush()}});
 window.addEventListener('pagehide',()=>{saveNoteSoon.flush();saveXSoon.flush()});
@@ -1487,6 +1667,7 @@ renderRoutines();
 renderNotebook();
 renderExercisePanels();
 renderExerciseEditor();
+renderStudy();
 </script>
 </body>
 </html>
