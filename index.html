@@ -174,7 +174,14 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
 .rHead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .quickAdd{margin-top:16px;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:14px;padding:5px 5px 5px 14px;background:#FFFFFF}
 .quickAdd input{flex:1;min-width:0;height:42px;border:0;background:transparent;outline:none;font-size:15px}
-.quickAdd select{height:36px;border:1px solid var(--line);border-radius:9px;background:#FFFFFF;padding:0 8px;font-size:13px;font-weight:700;color:var(--sub)}
+.quickAdd select,.quickAdd .qaTime{height:36px;border:1px solid var(--line);border-radius:9px;background:#FFFFFF;padding:0 8px;font-size:13px;font-weight:700;color:var(--sub)}
+.qaOpts{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.qaCat{position:relative;display:flex;align-items:center}
+.qaCat .dot{position:absolute;left:10px;pointer-events:none}
+.quickAdd .qaCat select{padding-left:24px}
+.quickAdd .qaTime{width:104px;padding:0 6px;font-family:inherit}
+.timeTag{font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.ev .tm{font-size:11.5px;font-weight:800;color:var(--sub);flex:0 0 auto;font-variant-numeric:tabular-nums}
 .toastInline{margin-top:12px;display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;background:#FFFFFF;border:1px solid var(--line);font-size:13.5px;font-weight:700}
 .rCols{margin-top:18px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
 .rCol{flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:14px}
@@ -221,6 +228,12 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
 .nCheck i{width:22px;height:22px;flex:0 0 auto;border-radius:6px;border:2px solid var(--box);background:#FFFFFF;display:grid;place-items:center;color:#FFFFFF}
 .nCheck.done i{background:var(--ink);border-color:var(--ink)}
 .nCheck.done span{text-decoration:line-through;color:var(--muted)}
+.nFmt{display:flex;gap:6px;margin-top:18px;max-width:760px}
+.nFmt button{width:40px;height:36px;border:1px solid var(--line);border-radius:9px;background:#FFFFFF;font-size:15px;color:var(--ink);display:grid;place-items:center;padding:0}
+.nFmt button:hover{background:var(--soft)}
+.nFmt span{align-self:center;font-size:12px;color:var(--muted);margin-left:4px}
+.nFmt+label .nBody{margin-top:8px}
+.nView u,.nCheck u{text-underline-offset:3px;text-decoration-thickness:1.5px}
 .nHint{margin-top:22px;max-width:760px;padding:12px 14px;border-radius:12px;background:var(--soft);font-size:12.5px;line-height:1.6;color:var(--sub)}
 .nBack{display:none}
 
@@ -411,8 +424,14 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
   .pageTitle{font-size:26px}
   .rFilters{display:flex;gap:6px;overflow-x:auto;padding:12px 14px 2px;flex-wrap:nowrap}
   .rFilters .chip{height:36px}
-  .quickAdd{margin:10px 14px 0;background:var(--bg)}
-  .quickAdd select{width:76px}
+  .quickAdd{margin:10px 14px 0;background:var(--bg);flex-wrap:wrap;padding:5px 5px 6px 12px;row-gap:4px}
+  .quickAdd>label{flex:1 1 100%}
+  .qaOpts{flex:1 1 100%;flex-wrap:nowrap}
+  .qaOpts .qaCat{flex:0 0 108px}
+  .qaOpts>select{flex:1 1 0;min-width:0}
+  .qaOpts select{width:100%}
+  .quickAdd .qaTime{flex:1 1 0;min-width:0;width:auto}
+  .qaOpts #rQuickAdd{flex:0 0 auto}
   .toastInline{margin:10px 14px 0}
   .rCols{margin-top:6px;padding:0 14px;gap:0}
   .rCol{flex-basis:100%;gap:0}
@@ -549,8 +568,12 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
     </div>
     <div class="quickAdd">
       <label style="flex:1;min-width:0;display:flex"><span class="sr">새 업무</span><input id="rQuick" placeholder="할 일을 입력하고 엔터"></label>
-      <select id="rQuickDue" aria-label="마감"><option value="today">오늘</option><option value="tomorrow">내일</option><option value="">마감 없음</option></select>
-      <button id="rQuickAdd" class="btn primary" aria-label="업무 추가" style="height:40px;padding:0 14px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <div class="qaOpts">
+        <label class="qaCat"><span class="sr">카테고리</span><span id="rQuickDot" class="dot"></span><select id="rQuickCat"></select></label>
+        <select id="rQuickDue" aria-label="마감"><option value="today">오늘</option><option value="tomorrow">내일</option><option value="">마감 없음</option></select>
+        <label style="display:flex"><span class="sr">마감 시간 (선택)</span><input id="rQuickTime" class="qaTime" type="time" title="마감 시간 (선택)"></label>
+        <button id="rQuickAdd" class="btn primary" aria-label="업무 추가" style="height:40px;padding:0 14px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
     </div>
     <div id="routineToast" class="toastInline" role="status" hidden></div>
     <div class="rCols">
@@ -585,8 +608,13 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
         <label><span class="sr">노트 제목</span><input id="noteTitle" class="nTitle" placeholder="제목" maxlength="200"></label>
         <div id="noteDate" class="nDate"></div>
         <div id="noteView" class="nView" title="누르면 편집할 수 있어요"></div>
+        <div id="noteFmt" class="nFmt" role="toolbar" aria-label="글자 모양">
+          <button type="button" data-fmt="b" aria-label="굵게 (Cmd/Ctrl+B)" title="굵게 (Cmd/Ctrl+B)"><b>B</b></button>
+          <button type="button" data-fmt="u" aria-label="밑줄 (Cmd/Ctrl+U)" title="밑줄 (Cmd/Ctrl+U)"><u>U</u></button>
+          <span>글자를 선택하고 누르세요</span>
+        </div>
         <label id="noteBodyWrap"><span class="sr">노트 내용</span><textarea id="noteBody" class="nBody" placeholder="자유롭게 적어 주세요"></textarea></label>
-        <div class="nHint">줄 앞에 <b>- [ ]</b> 를 쓰면 체크박스가 돼요. 쓰는 동안 자동으로 저장돼요.</div>
+        <div class="nHint">줄 앞에 <b>- [ ]</b> 를 쓰면 체크박스가 돼요. <b>**굵게**</b>, <u>__밑줄__</u>처럼 감싸면 보기 화면에서 글자 모양이 바뀌어요. 쓰는 동안 자동으로 저장돼요.</div>
       </div>
     </main>
   </div>
@@ -686,6 +714,8 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
         <div class="field full"><label for="titleInput">일정명</label><input id="titleInput" placeholder="일정명을 입력하세요"></div>
         <div class="field"><label for="startInput">시작일</label><input id="startInput" type="date"></div>
         <div class="field"><label for="endInput">종료일</label><input id="endInput" type="date"></div>
+        <div class="field"><label for="timeInput">시작 시간 (선택)</label><input id="timeInput" type="time"></div>
+        <div class="field"><label for="endTimeInput">종료 시간 (선택)</label><input id="endTimeInput" type="time"></div>
         <div class="field"><label for="catInput">카테고리</label><select id="catInput"></select></div>
         <div class="field"><label for="durInput">소요시간</label><select id="durInput"></select></div>
         <div class="field"><label for="doneInput">완료</label><select id="doneInput"><option value="false">미완료</option><option value="true">완료</option></select></div>
@@ -719,6 +749,7 @@ body.view-calendar #calendarView,body.view-routine #routineView,body.view-notes 
         <div class="field full"><label for="rTitle">업무명</label><input id="rTitle" placeholder="예: 월요일분 운행표 완성"></div>
         <div class="field"><label for="rCat">카테고리</label><select id="rCat"></select></div>
         <div class="field"><label for="rDue">마감일 (선택)</label><input id="rDue" type="date"></div>
+        <div class="field"><label for="rDueTime">마감 시간 (선택)</label><input id="rDueTime" type="time"></div>
         <div class="field"><label for="rRepeat">반복</label><select id="rRepeat"><option value="">반복 안 함</option><option value="daily">매일</option><option value="weekly">매주</option><option value="monthly">매월</option></select></div>
         <div class="field"><label for="rStatus">상태</label><select id="rStatus"><option value="open">진행 중</option><option value="done">완료</option></select></div>
         <div class="field full"><label for="rMemo">메모</label><textarea id="rMemo" placeholder="참고할 내용이나 세부 단계를 적어두세요"></textarea></div>
@@ -795,7 +826,11 @@ function setSync(t,state=''){ const e=$('#syncStatus'); e.textContent=t; e.class
 function matchesSearch(e){ const q=$('#search').value.trim().toLowerCase(); return !q||`${e.title} ${e.memo||''}`.toLowerCase().includes(q); }
 function visible(e){ return catSet.has(e.cat)&&matchesSearch(e); }
 function requireLogin(){ if(user)return true; toast('먼저 Google 로그인을 해주세요.'); return false; }
-const evOn=ds=>events.filter(e=>e.start<=ds&&e.end>=ds&&visible(e)).sort((a,b)=>Number(!!a.done)-Number(!!b.done)||a.title.localeCompare(b.title));
+const timeKey=t=>t||'';   // 시간 없는(종일) 일정이 먼저, 그다음 시간순
+const evSort=(a,b)=>Number(!!a.done)-Number(!!b.done)||timeKey(a.time).localeCompare(timeKey(b.time))||a.title.localeCompare(b.title);
+const evOn=ds=>events.filter(e=>e.start<=ds&&e.end>=ds&&visible(e)).sort(evSort);
+const timeRange=e=>e.time?(e.endTime?`${e.time}~${e.endTime}`:e.time):'';
+const nowHM=()=>{const d=new Date();return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
 const memosOn=ds=>memos.filter(m=>m.date===ds).sort((a,b)=>Number(!!a.done)-Number(!!b.done)||(a.createdAt||0)-(b.createdAt||0));
 
 /* ===================== 푸시 ===================== */
@@ -872,6 +907,8 @@ function openModal(date=null,id=null){
   $('#titleInput').value=e?.title||'';
   $('#startInput').value=e?.start||date||selDate||todayStr();
   $('#endInput').value=e?.end||date||selDate||todayStr();
+  $('#timeInput').value=e?.time||'';
+  $('#endTimeInput').value=e?.endTime||'';
   $('#catInput').value=e?.cat||(catSet.size===1?[...catSet][0]:'NCMN');
   $('#durInput').innerHTML=durOptions(e?.duration||'');
   $('#doneInput').value=String(!!e?.done);
@@ -916,7 +953,9 @@ function eventItem(e,{showDate=false}={}){
   el.className='item'+(e.done?' done':'')+(late?' late':'');
   el.style.cssText=catVars(e.cat);
   const when=e.start===e.end?shortDate(e.start):`${md(e.start)} ~ ${md(e.end)}`;
-  const meta=[`<span class="dot"></span><span>${esc(catName(e.cat))}</span>`];
+  const meta=[];
+  if(e.time)meta.push(`<span class="timeTag">${esc(timeRange(e))}</span>`);
+  meta.push(`<span class="dot"></span><span>${esc(catName(e.cat))}</span>`);
   if(showDate||e.start!==e.end)meta.push(`<span>· ${esc(when)}</span>`);
   if(e.duration)meta.push(`<span>· ${esc(e.duration)}</span>`);
   if(late)meta.push(`<span style="color:var(--danger-ink);font-weight:800">· ${dateDiffDays(e.end,today)}일 지남</span>`);
@@ -1026,7 +1065,7 @@ function renderCalendar(){
         const it=document.createElement('div');
         if(x.t==='e'){
           it.className='ev'+(x.e.done?' done':''); it.style.cssText=catVars(x.e.cat); it.title=x.e.title;
-          it.innerHTML=`<span class="dot"></span><span>${esc(x.e.title)}</span>`;
+          it.innerHTML=`<span class="dot"></span>${x.e.time?`<span class="tm">${esc(x.e.time)}</span>`:''}<span>${esc(x.e.title)}</span>`;
           it.onclick=ev=>{ev.stopPropagation();selectDate(ds);openModal(null,x.e.id)};
           makeDraggable(it,x.e.id);
         }else{
@@ -1090,7 +1129,7 @@ async function spawnNext(r){
   if(!r.repeat||!r.due)return;
   const nd=nextDue(r.due,r.repeat);
   if(routines.some(x=>!x.taskDone&&x.title===r.title&&x.due===nd&&x.repeat===r.repeat))return;
-  const next={id:'r'+Date.now()+Math.random().toString(36).slice(2,6),title:r.title,cat:r.cat||'NCMN',due:nd,memo:r.memo||'',repeat:r.repeat,taskDone:false,completedAt:null,createdAt:Date.now()};
+  const next={id:'r'+Date.now()+Math.random().toString(36).slice(2,6),title:r.title,cat:r.cat||'NCMN',due:nd,dueTime:r.dueTime||'',memo:r.memo||'',repeat:r.repeat,taskDone:false,completedAt:null,createdAt:Date.now()};
   if(await saveRoutine(next))routineToast(`반복 업무라서 다음 업무(${shortDate(nd)})가 자동으로 만들어졌어요.`);
 }
 async function toggleRoutine(id){
@@ -1101,10 +1140,13 @@ async function toggleRoutine(id){
 }
 function routineRow(r){
   const today=todayStr(), done=!!r.taskDone;
-  const diff=r.due?dateDiffDays(today,r.due):null, late=!done&&r.due&&diff<0;
+  const diff=r.due?dateDiffDays(today,r.due):null;
+  const timePassed=!done&&diff===0&&r.dueTime&&nowHM()>r.dueTime;
+  const late=!done&&r.due&&(diff<0||timePassed);
   const el=document.createElement('div');
   el.className='item'+(done?' done':'')+(late?' late':''); el.style.cssText=catVars(r.cat||'NCMN');
-  const due=done?(r.completedAt?`${md(r.completedAt)} 완료`:'완료'):!r.due?'':diff<0?`${-diff}일 지남`:diff===0?'오늘':diff===1?'내일':(isDesktop()?`${md(r.due)} · D-${diff}`:`D-${diff}`);
+  const tm=r.dueTime?` ${r.dueTime}`:'';
+  const due=done?(r.completedAt?`${md(r.completedAt)} 완료`:'완료'):!r.due?'':diff<0?`${-diff}일 지남`:diff===0?(timePassed?`오늘${tm} 지남`:`오늘${tm}`):diff===1?`내일${tm}`:(isDesktop()?`${md(r.due)}${tm} · D-${diff}`:`D-${diff}${tm}`);
   const dueCls=done?'done':late?'late':diff===0?'today':'';
   const meta=[`<span class="dot"></span><span>${esc(catName(r.cat||'NCMN'))}</span>`];
   if(r.repeat)meta.push(`<span style="display:inline-flex;align-items:center;gap:3px">${IC.repeat}${esc(repeatText(r))}</span>`);
@@ -1125,7 +1167,7 @@ function renderRoutines(){
   const today=todayStr(), {we}=weekRange();
   const all=user?routines:[];
   const items=all.filter(r=>routineFilter==='전체'||r.cat===routineFilter);
-  const open=items.filter(r=>!r.taskDone).sort((a,b)=>(a.due||'9999-12-31').localeCompare(b.due||'9999-12-31')||(a.createdAt||0)-(b.createdAt||0));
+  const open=items.filter(r=>!r.taskDone).sort((a,b)=>(a.due||'9999-12-31').localeCompare(b.due||'9999-12-31')||(a.dueTime||'99').localeCompare(b.dueTime||'99')||(a.createdAt||0)-(b.createdAt||0));
   const done=items.filter(r=>!!r.taskDone).sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||'')||(b.createdAt||0)-(a.createdAt||0));
   const late=open.filter(r=>r.due&&r.due<today), tod=open.filter(r=>r.due===today);
   const badgeN=all.filter(r=>!r.taskDone&&r.due&&r.due<=today).length;
@@ -1165,8 +1207,9 @@ function openRoutine(id=null){
   if(!r)return;
   $('#routineModalTitle').textContent=id?'업무 수정':'업무 추가';
   $('#rTitle').value=r.title||'';
-  $('#rCat').value=r.cat||(routineFilter!=='전체'?routineFilter:'NCMN');
+  $('#rCat').value=r.cat||(routineFilter!=='전체'?routineFilter:$('#rQuickCat').value||'NCMN');
   $('#rDue').value=r.due||'';
+  $('#rDueTime').value=r.dueTime||'';
   $('#rRepeat').value=r.repeat||'';
   $('#rStatus').value=r.taskDone?'done':'open';
   $('#rMemo').value=r.memo||'';
@@ -1175,16 +1218,23 @@ function openRoutine(id=null){
   setTimeout(()=>$('#rTitle').focus(),50);
 }
 function closeRoutine(){$('#routineBackdrop').classList.remove('show');routineEditing=null}
+// 빠른 추가: 카테고리는 마지막에 고른 값을 기억해요
+$('#rQuickCat').innerHTML=CATS.map(c=>`<option value="${esc(c)}">${esc(catName(c))}</option>`).join('');
+function setQuickCat(c){if(!CATS.includes(c))c='NCMN';$('#rQuickCat').value=c;$('#rQuickDot').style.background=CAT[c].c}
+try{setQuickCat(localStorage.getItem('hQuickCat')||'NCMN')}catch(_){setQuickCat('NCMN')}
+$('#rQuickCat').onchange=e=>{setQuickCat(e.target.value);try{localStorage.setItem('hQuickCat',e.target.value)}catch(_){}};
 async function quickAddRoutine(){
   if(!requireLogin())return;
   const title=$('#rQuick').value.trim(); if(!title)return;
   const sel=$('#rQuickDue').value, due=sel==='today'?todayStr():sel==='tomorrow'?addDays(todayStr(),1):'';
-  const ok=await saveRoutine({id:'r'+Date.now(),title,cat:routineFilter!=='전체'?routineFilter:'NCMN',due,memo:'',repeat:'',taskDone:false,completedAt:null,createdAt:Date.now()});
-  if(ok){$('#rQuick').value='';$('#rQuick').focus()}
+  const dueTime=due?$('#rQuickTime').value:'';
+  const ok=await saveRoutine({id:'r'+Date.now(),title,cat:$('#rQuickCat').value,due,dueTime,memo:'',repeat:'',taskDone:false,completedAt:null,createdAt:Date.now()});
+  if(ok){$('#rQuick').value='';$('#rQuickTime').value='';$('#rQuick').focus()}
 }
+$('#rQuickDue').onchange=e=>{$('#rQuickTime').disabled=!e.target.value;if(!e.target.value)$('#rQuickTime').value=''};
 $('#rQuick').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();quickAddRoutine()}});
 $('#rQuickAdd').onclick=quickAddRoutine;
-$('#routineFilters').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;routineFilter=b.dataset.r;renderRoutines()};
+$('#routineFilters').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;routineFilter=b.dataset.r;if(routineFilter!=='전체')setQuickCat(routineFilter);renderRoutines()};
 
 /* ===================== 노트 ===================== */
 let selectedNoteId=null, noteDraft=null, noteMode='view';
@@ -1192,7 +1242,10 @@ const isCheckLine=l=>/^\s*[-*]\s\[( |x|X)\]\s?/.test(l);
 const isChecked=l=>/^\s*[-*]\s\[(x|X)\]/.test(l);
 const checkText=l=>l.replace(/^\s*[-*]\s\[( |x|X)\]\s?/,'');
 function noteStats(body){const ls=String(body||'').split('\n').filter(isCheckLine);return {n:ls.length,d:ls.filter(isChecked).length}}
-function notePreview(body){const ls=String(body||'').split('\n').map(l=>l.trim()).filter(Boolean);const t=ls.find(l=>!isCheckLine(l));return t||ls.map(checkText).join(', ')||'내용 없음'}
+// **굵게**, __밑줄__ → 보기 화면에서 글자 모양으로
+const fmtInline=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/__(.+?)__/g,'<u>$1</u>');
+const stripFmt=t=>String(t).replace(/\*\*(.+?)\*\*/g,'$1').replace(/__(.+?)__/g,'$1');
+function notePreview(body){const ls=stripFmt(body||'').split('\n').map(l=>l.trim()).filter(Boolean);const t=ls.find(l=>!isCheckLine(l));return t||ls.map(checkText).join(', ')||'내용 없음'}
 const fmtNoteDate=v=>{if(!v)return '';const d=new Date(v),now=new Date();return d.toDateString()===now.toDateString()?d.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'}):`${d.getMonth()+1}/${d.getDate()}`};
 function curNote(){return noteDraft}
 function renderNotebook(){
@@ -1240,16 +1293,16 @@ function renderNoteView(){
     if(isCheckLine(l)){
       const b=document.createElement('button'); const on=isChecked(l);
       b.className='nCheck'+(on?' done':''); b.setAttribute('aria-pressed',String(on));
-      b.innerHTML=`<i>${on?IC.check:''}</i><span>${esc(checkText(l))}</span>`;
+      b.innerHTML=`<i>${on?IC.check:''}</i><span>${fmtInline(checkText(l))}</span>`;
       b.onclick=ev=>{ev.stopPropagation();const arr=n.body.split('\n');arr[i]=on?arr[i].replace(/\[(x|X)\]/,'[ ]'):arr[i].replace('[ ]','[x]');n.body=arr.join('\n');$('#noteBody').value=n.body;renderNoteView();saveNoteSoon();saveNoteSoon.flush()};
       view.appendChild(b);
     }else if(!l.trim()){view.insertAdjacentHTML('beforeend','<div class="gap"></div>')}
-    else{const p=document.createElement('p');p.textContent=l;view.appendChild(p)}
+    else{const p=document.createElement('p');p.innerHTML=fmtInline(l);view.appendChild(p)}
   });
 }
 function setNoteMode(m){
   noteMode=m;
-  $('#noteView').hidden=m!=='view'; $('#noteBodyWrap').hidden=m==='view';
+  $('#noteView').hidden=m!=='view'; $('#noteBodyWrap').hidden=m==='view'; $('#noteFmt').hidden=m==='view';
   $('#noteMode').textContent=m==='view'?'편집':'보기';
   if(m==='view')renderNoteView();
 }
@@ -1279,6 +1332,25 @@ function newNote(){
   loadNoteEditor(); setNoteMode('edit'); renderNotebook(); $('#noteTitle').focus();
 }
 function closeNote(){saveNoteSoon.flush();selectedNoteId=null;noteDraft=null;loadNoteEditor();renderNotebook()}
+// 굵게·밑줄: 선택한 글자를 **…** / __…__ 로 감싸거나, 이미 감싸져 있으면 풀어요
+function applyFmt(kind){
+  const ta=$('#noteBody'); if(!noteDraft)return;
+  const mk=kind==='b'?'**':'__', v=ta.value;
+  let a=ta.selectionStart, z=ta.selectionEnd;
+  if(a===z){ // 선택이 없으면 표시만 넣고 그 사이에 커서
+    ta.value=v.slice(0,a)+mk+mk+v.slice(z); ta.setSelectionRange(a+mk.length,a+mk.length);
+  }else if(v.slice(a-mk.length,a)===mk&&v.slice(z,z+mk.length)===mk){ // 바깥에 표시가 있으면 해제
+    ta.value=v.slice(0,a-mk.length)+v.slice(a,z)+v.slice(z+mk.length); ta.setSelectionRange(a-mk.length,z-mk.length);
+  }else{
+    const sel=v.slice(a,z);
+    if(sel.startsWith(mk)&&sel.endsWith(mk)&&sel.length>=mk.length*2){ta.value=v.slice(0,a)+sel.slice(mk.length,-mk.length)+v.slice(z);ta.setSelectionRange(a,z-mk.length*2)}
+    else{ta.value=v.slice(0,a)+mk+sel+mk+v.slice(z);ta.setSelectionRange(a+mk.length,z+mk.length)}
+  }
+  ta.focus(); noteDraft.body=ta.value; setNoteSaveState('busy'); saveNoteSoon();
+}
+$('#noteFmt').addEventListener('pointerdown',e=>{if(e.target.closest('button'))e.preventDefault()});
+$('#noteFmt').onclick=e=>{const b=e.target.closest('button[data-fmt]');if(b)applyFmt(b.dataset.fmt)};
+$('#noteBody').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&!e.altKey&&(e.key==='b'||e.key==='u'||e.key==='B'||e.key==='U')){e.preventDefault();applyFmt(e.key.toLowerCase())}});
 $('#noteNew').onclick=newNote;
 $('#noteSearch').oninput=renderNotebook;
 $('#noteBack').onclick=closeNote;
@@ -1579,8 +1651,11 @@ $('#saveBtn').onclick=async()=>{
   const title=$('#titleInput').value.trim(), start=$('#startInput').value, end=$('#endInput').value||start;
   if(!title||!start){alert('일정명과 시작일을 입력해주세요.');return}
   if(end<start){alert('종료일은 시작일보다 빠를 수 없습니다.');return}
+  const time=$('#timeInput').value, endTime=$('#endTimeInput').value;
+  if(endTime&&!time){alert('종료 시간을 넣으려면 시작 시간도 넣어주세요.');return}
+  if(time&&endTime&&start===end&&endTime<time){alert('종료 시간이 시작 시간보다 빠릅니다.');return}
   const old=editing?events.find(x=>x.id===editing):null;
-  await saveEvent({...(old||{}),id:editing||'e'+Date.now(),title,start,end,cat:$('#catInput').value,duration:$('#durInput').value,done:$('#doneInput').value==='true',memo:$('#memoInput').value.trim()});
+  await saveEvent({...(old||{}),id:editing||'e'+Date.now(),title,start,end,time,endTime:time?endTime:'',cat:$('#catInput').value,duration:$('#durInput').value,done:$('#doneInput').value==='true',memo:$('#memoInput').value.trim()});
   closeModal();
 };
 $('#deleteBtn').onclick=async()=>{if(editing&&confirm('이 일정을 삭제할까요?')){const id=editing;closeModal();await removeEvent(id)}};
@@ -1606,7 +1681,8 @@ $('#rSave').onclick=async()=>{
   if(repeat&&!due){alert('반복 업무는 마감일이 있어야 다음 업무를 만들 수 있어요.');return}
   const old=routineEditing?routines.find(x=>x.id===routineEditing):null;
   const taskDone=$('#rStatus').value==='done';
-  const r={...(old||{}),id:routineEditing||'r'+Date.now(),title,cat:$('#rCat').value,due,repeat,memo:$('#rMemo').value.trim(),taskDone,
+  const dueTime=due?$('#rDueTime').value:'';
+  const r={...(old||{}),id:routineEditing||'r'+Date.now(),title,cat:$('#rCat').value,due,dueTime,repeat,memo:$('#rMemo').value.trim(),taskDone,
     completedAt:taskDone?(old?.completedAt||todayStr()):null,createdAt:old?.createdAt||Date.now()};
   const saved=await saveRoutine(r);
   if(saved){closeRoutine();if(taskDone&&!old?.taskDone)await spawnNext(r)}
