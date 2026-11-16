@@ -14,6 +14,7 @@ const diffDays = (a, b) => Math.round((dOf(b) - dOf(a)) / 86400000);
 const catName = c => c === '개인일정' ? '개인' : (c || '');
 const sortEvents = (a, b) =>
   Number(!!a.done) - Number(!!b.done) ||
+  String(a.time || '').localeCompare(String(b.time || '')) ||
   CATS.indexOf(a.cat) - CATS.indexOf(b.cat) ||
   String(a.title).localeCompare(String(b.title), 'ko');
 
@@ -45,7 +46,8 @@ export function buildPush(events, today, studyDone = null) {
   const lines = list.map(e => {
     const end = e.end || e.start;
     const range = e.start !== end ? ` (~${md(end)})` : '';
-    return `${e.done ? '✓' : '•'} [${catName(e.cat)}] ${e.title}${range}`;
+    const tm = e.time ? `${e.time}${e.endTime ? '~' + e.endTime : ''} ` : '';
+    return `${e.done ? '✓' : '•'} ${tm}[${catName(e.cat)}] ${e.title}${range}`;
   });
   if (!lines.length) lines.push('오늘 등록된 일정이 없어요.');
   if (studyDone) {
@@ -75,7 +77,7 @@ export function buildSlack({ events = [], memos = [], routines = [], studyDone =
   const evs = todayEvents(events, tomorrow);
   const ms = memos.filter(m => m.date === tomorrow);
   const open = routines.filter(r => !r.taskDone)
-    .sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999') || (a.createdAt || 0) - (b.createdAt || 0));
+    .sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999') || (a.dueTime || '99').localeCompare(b.dueTime || '99') || (a.createdAt || 0) - (b.createdAt || 0));
   const unfinished = open.filter(r => r.due && r.due <= today);
   const tmr = open.filter(r => r.due === tomorrow);
   const later = open.filter(r => r.due && r.due > tomorrow && r.due <= tw.we);
@@ -89,14 +91,16 @@ export function buildSlack({ events = [], memos = [], routines = [], studyDone =
     const end = e.end || e.start;
     const range = e.start !== end ? ` _(${md(e.start)}~${md(end)})_` : '';
     const dur = e.duration ? ` · ${sx(e.duration)}` : '';
-    return `• [${sx(catName(e.cat))}] ${sx(e.title)}${range}${dur}`;
+    const tm = e.time ? `*${e.time}${e.endTime ? '~' + e.endTime : ''}* ` : '';
+    return `• ${tm}[${sx(catName(e.cat))}] ${sx(e.title)}${range}${dur}`;
   };
   const taskLine = (r, kind) => {
     const rep = repeatText(r);
     let due = '';
     if (kind === 'late') { const d = diffDays(r.due, today); due = d === 0 ? ' · 오늘까지' : ` · *${d}일 지남*`; }
     else if (kind === 'later') due = ` · ${label(r.due)}`;
-    return `• [${sx(catName(r.cat))}] ${sx(r.title)}${rep ? ` 🔁${rep}` : ''}${due}`;
+    const tm = r.dueTime ? ` · ${r.dueTime}까지` : '';
+    return `• [${sx(catName(r.cat))}] ${sx(r.title)}${rep ? ` 🔁${rep}` : ''}${due}${tm}`;
   };
   const section = text => ({ type: 'section', text: { type: 'mrkdwn', text: text.length > 2900 ? text.slice(0, 2900) + '\n…' : text } });
 
